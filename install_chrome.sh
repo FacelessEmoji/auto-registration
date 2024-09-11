@@ -28,7 +28,7 @@ remove_chromedriver
 # Установка необходимых утилит
 echo "Установка необходимых утилит..."
 sudo apt update
-sudo apt install -y wget curl unzip git
+sudo apt install -y wget curl unzip git python3 python3-pip  # Добавлены Python и pip
 
 # Скачивание и установка ChromeDriver
 CHROMEDRIVER_URL="https://storage.googleapis.com/chrome-for-testing-public/128.0.6613.137/linux64/chromedriver-linux64.zip"
@@ -49,6 +49,14 @@ wget -O /tmp/google-chrome.deb $CHROME_URL
 echo "Установка Google Chrome..."
 sudo dpkg -i /tmp/google-chrome.deb
 sudo apt --fix-broken install -y  # Для установки зависимостей, если они нужны
+
+# Установка зависимостей через pip
+if [ -f "requirements.txt" ]; then
+    echo "Установка зависимостей из requirements.txt..."
+    pip3 install -r requirements.txt
+else
+    echo "Файл requirements.txt не найден!"
+fi
 
 # Проверка установленных версий
 echo "Проверка установленных версий..."
