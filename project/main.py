@@ -7,6 +7,7 @@ from selenium import webdriver
 from selenium.common import NoSuchElementException
 from selenium.webdriver.chrome.options import Options
 from webdriver_manager.chrome import ChromeDriverManager
+from seleniumwire import webdriver
 import time
 import logging
 from selenium.webdriver.chrome.service import Service as ChromeService
@@ -21,6 +22,9 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
     logging.FileHandler("../log.txt", mode='a', encoding='utf-8'),
     logging.StreamHandler()
 ])
+
+# Отключаем все логи уровня INFO и ниже
+logging.getLogger('seleniumwire').setLevel(logging.ERROR)
 
 
 def login_and_continue(driver, account):
@@ -67,7 +71,7 @@ def process_account(account, accounts, proxies, csv_path):
     chrome_options.add_argument('--ignore-ssl-errors')
 
     # Запуск браузера с заданными опциями и сервисом
-    with webdriver.Chrome(service=service, options=chrome_options) as driver:
+    with webdriver.Chrome(seleniumwire_options=proxy_options, service=service, options=chrome_options) as driver:
         try:
             change_account_status(accounts, account, "Running", csv_path)
 
