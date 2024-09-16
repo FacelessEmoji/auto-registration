@@ -8,8 +8,8 @@ import logging
 
 from project.annotations import with_modal_check
 from project.errors import check_nginx_502_error
+from project.exceptions import NoAvailableGroupsError
 from project.functions import change_account_status
-
 
 
 @with_modal_check
@@ -205,18 +205,13 @@ def click_register_button(driver, account, accounts, csv_path):
 def fill_modal_form(driver, account, accounts, csv_path):
     list_of_groups = click_each_tab_and_check_group(driver)
 
-    # Проверяем, пуст ли список
     if not list_of_groups:
-        # Логируем ошибку
-        logging.error(f"Failed to enroll account {account['iin']} in group: No available spots.")
-
-        # Меняем статус аккаунта на "No Available Group"
         change_account_status(accounts, account, "No Available Group", csv_path)
-
-        # Возвращаемся из функции, так как нет групп для обработки
+        logging.error(f"Failed to enroll account {account['iin']} in group: No available spots.")
         return
 
-    group_number = random.choice(list_of_groups)
+    # group_number = random.choice(list_of_groups)
+    group_number = 2
 
     if check_nginx_502_error(driver):
         try:
@@ -237,7 +232,7 @@ def fill_modal_form(driver, account, accounts, csv_path):
 
             first_option_xpath = f"//ul[@id='vs2__listbox' and contains(@class, 'vs__dropdown-menu')]/li[@role='option'][{account.get('child_in_order')}]"
 
-            first_option = wait.until(EC.element_to_be_clickable((By.XPATH, first_option_xpath)))
+            wait = WebDriverWait(driver, 10)
             first_option = wait.until(EC.element_to_be_clickable((By.XPATH, first_option_xpath)))
             first_option.click()
 
@@ -255,6 +250,7 @@ def fill_modal_form(driver, account, accounts, csv_path):
             except:
                 None
 
+            wait = WebDriverWait(driver, 10)
             second_first_option_xpath = f"//ul[@id='vs3__listbox' and contains(@class, 'vs__dropdown-menu')]/li[@role='option'][{group_number}]"
             second_first_option = wait.until(EC.element_to_be_clickable((By.XPATH, second_first_option_xpath)))
             second_first_option.click()
@@ -265,22 +261,24 @@ def fill_modal_form(driver, account, accounts, csv_path):
 
             submit_button_xpath = "//button[contains(text(), 'Записаться')]"
             submit_button = wait.until(EC.element_to_be_clickable((By.XPATH, submit_button_xpath)))
+
             submit_button.click()
 
             try:
                 element = WebDriverWait(driver, 1).until(
                     EC.visibility_of_element_located((By.ID, "swal2-content"))
                 )
-                # TODO: убрать else, поставить успешно или казахская хрень
                 if "Ошибка!" in element.text:
                     logging.error(f"Failed to enroll account {account['iin']} in group: No available spots.")
-                    change_account_status(accounts, account, "Error", csv_path)
-                    raise Exception("No available spots in the group.")
-                else:
-                    change_account_status(accounts, account, "Finished", csv_path)
-                    logging.info(f"Successfully enrolled account {account['iin']} in group.")
-            except:
+                    change_account_status(accounts, account, "No Spots", csv_path)
+                    raise NoAvailableGroupsError("No available spots in the group.")
+            except NoAvailableGroupsError as e:
+                raise Exception(e)
+            except Exception:
                 None
+
+            change_account_status(accounts, account, "Finished", csv_path)
+            logging.info(f"Successfully enrolled account {account['iin']} in group.")
 
         except Exception as e:
             logging.error(f"Error filling form in account {account['iin']}: {e}")
