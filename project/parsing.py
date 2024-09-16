@@ -128,24 +128,16 @@ def click_each_tab_and_check_group(driver):
                 # Проверка на возможное деление на ноль
                 if students_total == 0:
                     logging.error(f"Total students is 0 in group at index {index + 1}, skipping group.")
-                    continue  # Пропустить итерацию, если total == 0
+                    continue
 
                 total_participants = students_current + queue_count
-
-                # Проверка на наличие данных
-                if total_participants == 0:
-                    logging.error(
-                        f"Both students current and queue count are 0 in group at index {index + 1}, skipping group.")
-                    continue  # Пропустить итерацию, если все значения равны 0
-
-                # Выполнение деления только после всех проверок
                 percentage_filled = total_participants / students_total
 
                 # Проверка, если процент не равен 1
                 if percentage_filled != 1:
                     indices_with_mismatch.append(index + 1)  # Добавить индекс (начинается с 1)
                     logging.info(
-                        f"Mismatch in group {index + 1}: filled {total_participants}/{students_total} ({percentage_filled:.2%})")
+                        f"Added group {index + 1}: filled {total_participants}/{students_total} )")
 
             except Exception as e:
                 logging.error(f"Error occurred while processing group at index {index + 1}: {e}")
