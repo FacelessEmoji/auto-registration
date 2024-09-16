@@ -15,7 +15,7 @@ import logging
 from selenium.webdriver.chrome.service import Service as ChromeService
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from project.errors import check_nginx_502_error
-from project.exceptions import AuthenticationError
+from project.exceptions import AuthenticationError, PhoneNumbersError
 from project.parsing import navigate_to_login_page, click_iin_bin_link, enter_iin, enter_password, \
     click_login_button, \
     click_continue_button, change_language_to_russian, click_register_button
@@ -30,6 +30,7 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 logging.getLogger('seleniumwire').setLevel(logging.ERROR)
 
 
+# TODO: Разбить на функции, ошибки бросаются корректно
 def login_and_continue(driver, account):
     login_url = "https://damubala.kz/sign-in"
     navigate_to_login_page(driver, account, login_url)
@@ -57,18 +58,18 @@ def login_and_continue(driver, account):
             continue_button = success_popup.find_element(By.CSS_SELECTOR, '.swal2-confirm')
             wait.until(EC.element_to_be_clickable(continue_button))
             continue_button.click()
-
-    except Exception as e:
-        error_popup = wait.until(EC.presence_of_element_located((By.CLASS_NAME, "swal2-popup")))
+    except:
         error_icon = driver.find_element(By.CLASS_NAME, "swal2-icon-error")
         if error_icon.is_displayed():
-            raise Exception("Ошибка: Неверные последние 4 цифры номера телефона!")
+            raise PhoneNumbersError(
+                f"Ошибка аутентификации для аккаунта {account['iin']}: Неверные последние 4 цифры номера телефона!")
         else:
-            raise Exception("login_and_continue error")
+            raise Exception("Unexpected login_and_continue Error")
 
     logging.info(f"Account {account['iin']}: Logged into main menu")
 
 
+# TODO: Разбить на функции, ошибки ловятся
 def process_account(account, accounts, proxies, csv_path):
     proxy = random.choice(proxies)
     ip, port, user, password = proxy.split(':')
@@ -126,22 +127,27 @@ def process_account(account, accounts, proxies, csv_path):
             logging.info(f"Account {account['iin']}: Navigated to {account['target_url']}")
             time.sleep(5)
             click_register_button(driver, account, accounts, csv_path)
-
+        except AuthenticationError as e:
+            change_account_status(accounts, account, "Authentication Error", csv_path)
+            logging.error(f"{e}")
+        except PhoneNumbersError as e:
+            change_account_status(accounts, account, "Phone Numbers Error", csv_path)
+            logging.error(f"{e}")
         except Exception as e:
-
+            error_name = type(e).__name__
+            logging.error(f"Error {error_name} processing account {account['iin']}: {e}")
             change_account_status(accounts, account, "Error", csv_path)
-            logging.error(f"Error processing account {account['iin']}: {e}")
 
 
 def main(proxies, accounts, csv_path):
-    ignored_statuses = ["Finished", "No Available Group"]
+    # TODO: Расширяем и выносим
+    ignored_statuses = ["Finished", "No Available Group", "Authentication Error", "Phone Numbers Error"]
     with ThreadPoolExecutor(max_workers=8) as executor:
         futures = []
         for account in accounts:
             if account['status'] not in ignored_statuses:
                 future = executor.submit(process_account, account, accounts, proxies, csv_path)
                 futures.append(future)
-
         for future in as_completed(futures):
             try:
                 future.result()
