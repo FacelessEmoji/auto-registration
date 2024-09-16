@@ -15,7 +15,7 @@ import logging
 from selenium.webdriver.chrome.service import Service as ChromeService
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from project.errors import check_nginx_502_error
-from project.exeptions import AuthenticationError
+from project.exceptions import AuthenticationError
 from project.parsing import navigate_to_login_page, click_iin_bin_link, enter_iin, enter_password, \
     click_login_button, \
     click_continue_button, change_language_to_russian, click_register_button
