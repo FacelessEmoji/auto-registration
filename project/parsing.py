@@ -11,6 +11,11 @@ from project.errors import check_nginx_502_error
 from project.functions import change_account_status
 
 
+# Кастомное исключение для некорректных данных аутентификации
+class AuthenticationError(Exception):
+    pass
+
+
 @with_modal_check
 def navigate_to_login_page(driver, account, login_url):
     logging.info(f"Account {account['iin']}: Logging in")
@@ -44,9 +49,29 @@ def enter_password(driver, account):
 
 @with_modal_check
 def click_login_button(driver, account):
-    wait = WebDriverWait(driver, 10)
-    login_button = wait.until(EC.element_to_be_clickable((By.ID, "kt_sign_in_submit")))
-    login_button.click()
+    try:
+        wait = WebDriverWait(driver, 10)
+        login_button = wait.until(EC.element_to_be_clickable((By.ID, "kt_sign_in_submit")))
+        login_button.click()
+        time.sleep(3)  # Ждём 3 секунды после нажатия на кнопку
+
+        # Шаг 2: Проверка на наличие ошибки аутентификации
+        error_popup_xpath = "//div[@class='swal2-popup swal2-modal swal2-icon-error swal2-show']"
+        error_popup = wait.until(EC.presence_of_element_located((By.XPATH, error_popup_xpath)))
+
+        # Ищем текст ошибки на разных языках
+        error_message_xpath = "//div[@id='swal2-content']/h2"
+        error_message_element = error_popup.find_element(By.XPATH, error_message_xpath)
+        error_text = error_message_element.text
+        print(error_text)
+
+        # Проверяем текст ошибки
+        if "Қате ЖСН немесе құпиясөз!" in error_text or "Ошибка!" in error_text:
+            raise AuthenticationError(f"Ошибка аутентификации для аккаунта {account['iin']}: Неверный ИИН или пароль.")
+
+    except AuthenticationError as auth_err:
+        print("поймал")
+        raise
 
 
 @with_modal_check
@@ -90,7 +115,7 @@ def click_each_tab_and_check_group(driver):
 
         # Прокрутка до ul элемента
         driver.execute_script("arguments[0].scrollIntoView(true);", ul_element)
-        time.sleep(0.5)  # Добавить небольшую паузу, чтобы прокрутка завершилась
+        time.sleep(1)  # Добавить небольшую паузу, чтобы прокрутка завершилась
 
         # Найти все li элементы внутри ul
         li_elements = ul_element.find_elements(By.XPATH, ".//li[@class='nav-item']")
@@ -102,12 +127,11 @@ def click_each_tab_and_check_group(driver):
             try:
                 if index != 0:  # Пропустить первый элемент
                     driver.execute_script("arguments[0].scrollIntoView(true);", li)
-                    time.sleep(0.3)  # Добавить небольшую паузу, чтобы прокрутка завершилась
+                    time.sleep(1)  # Добавить небольшую паузу, чтобы прокрутка завершилась
 
                     a_element = li.find_element(By.XPATH, ".//a[@class='nav-link m-0 me-4']")
-
                     driver.execute_script("arguments[0].scrollIntoView(true);", a_element)
-                    time.sleep(0.3)  # Добавить небольшую паузу, чтобы прокрутка завершилась
+                    time.sleep(1)  # Добавить небольшую паузу, чтобы прокрутка завершилась
 
                     driver.execute_script("arguments[0].click();", a_element)
                     time.sleep(1)  # Добавить паузу между кликами, если нужно
@@ -117,7 +141,7 @@ def click_each_tab_and_check_group(driver):
                     EC.presence_of_element_located((By.XPATH, progress_info_xpath))
                 )
 
-                time.sleep(0.5)
+                time.sleep(1)
 
                 students_text = progress_info_element.find_element(By.XPATH, ".//div/span/span").text
                 students_current, students_total = map(int, students_text.split('/'))
@@ -125,17 +149,34 @@ def click_each_tab_and_check_group(driver):
                 queue_text = progress_info_element.find_element(By.XPATH, ".//div[@class='mt-5']/h3/span").text
                 queue_count = int(queue_text)
 
-                if (students_current + queue_count) / students_total != 1:
-                    indices_with_mismatch.append(index + 1)  # Добавить индекс (начинается с 1)
+                # Проверка на возможное деление на ноль
+                if students_total == 0:
+                    logging.error(f"Total students is 0 in group at index {index + 1}, skipping group.")
+                    continue  # Пропустить итерацию, если total == 0
 
+                total_participants = students_current + queue_count
+
+                # Проверка на наличие данных
+                if total_participants == 0:
+                    logging.error(
+                        f"Both students current and queue count are 0 in group at index {index + 1}, skipping group.")
+                    continue  # Пропустить итерацию, если все значения равны 0
+
+                # Выполнение деления только после всех проверок
+                percentage_filled = total_participants / students_total
+
+                # Проверка, если процент не равен 1
+                if percentage_filled != 1:
+                    indices_with_mismatch.append(index + 1)  # Добавить индекс (начинается с 1)
+                    logging.info(
+                        f"Mismatch in group {index + 1}: filled {total_participants}/{students_total} ({percentage_filled:.2%})")
 
             except Exception as e:
-                logging.error(f"Error occurred while clicking on a element: {e}")
+                logging.error(f"Error occurred while processing group at index {index + 1}: {e}")
 
     except Exception as e:
         logging.error(f"Error occurred while clicking each tab: {e}")
 
-    logging.info(f"The group number was calculated.")
     return indices_with_mismatch
 
 
@@ -145,7 +186,7 @@ def click_register_button(driver, account, accounts, csv_path):
     if not check_nginx_502_error(driver):
         logging.error("Failed to resolve 502 error after retries, exiting...")
         return
-    while attempts < 500:  # для тестов
+    while attempts < 200:  # для тестов
         try:
             wait = WebDriverWait(driver, 50)
             button_xpath = "//button[contains(@class, 'btn') and contains(@class, 'btn-sm') and contains(@class, 'btn-primary') and contains(@class, 'text-nowrap') and contains(@class, 'ms-3')]"
@@ -188,6 +229,17 @@ def click_register_button(driver, account, accounts, csv_path):
 def fill_modal_form(driver, account, accounts, csv_path):
     list_of_groups = click_each_tab_and_check_group(driver)
 
+    # Проверяем, пуст ли список
+    if not list_of_groups:
+        # Логируем ошибку
+        logging.error(f"Failed to enroll account {account['iin']} in group: No available spots.")
+
+        # Меняем статус аккаунта на "No Available Group"
+        change_account_status(accounts, account, "No Available Group", csv_path)
+
+        # Возвращаемся из функции, так как нет групп для обработки
+        return
+
     group_number = random.choice(list_of_groups)
 
     if check_nginx_502_error(driver):
@@ -207,13 +259,11 @@ def fill_modal_form(driver, account, accounts, csv_path):
             except:
                 None
 
+            first_option_xpath = f"//ul[@id='vs2__listbox' and contains(@class, 'vs__dropdown-menu')]/li[@role='option'][{account.get('child_in_order')}]"
 
-            first_option_xpath = f"//ul[@id='vs2__listbox' and contains(@class, 'vs__dropdown-menu')]/li[@role='option'][{account["status_code"]}]"
             first_option = wait.until(EC.element_to_be_clickable((By.XPATH, first_option_xpath)))
             first_option = wait.until(EC.element_to_be_clickable((By.XPATH, first_option_xpath)))
             first_option.click()
-
-
 
             second_element_xpath = "//div[@class='vs__selected-options']/input[@placeholder='Выберите группу' and not(@disabled)]"
             second_element = wait.until(EC.element_to_be_clickable((By.XPATH, second_element_xpath)))
@@ -250,7 +300,7 @@ def fill_modal_form(driver, account, accounts, csv_path):
                 element = WebDriverWait(driver, 1).until(
                     EC.visibility_of_element_located((By.ID, "swal2-content"))
                 )
-
+                # TODO: убрать else, поставить успешно или казахская хрень
                 if "Ошибка!" in element.text:
                     logging.error(f"Failed to enroll account {account['iin']} in group: No available spots.")
                     change_account_status(accounts, account, "Error", csv_path)
