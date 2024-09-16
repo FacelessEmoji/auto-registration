@@ -15,6 +15,7 @@ import logging
 from selenium.webdriver.chrome.service import Service as ChromeService
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from project.errors import check_nginx_502_error
+from project.exeptions import AuthenticationError
 from project.parsing import navigate_to_login_page, click_iin_bin_link, enter_iin, enter_password, \
     click_login_button, \
     click_continue_button, change_language_to_russian, click_register_button
@@ -39,8 +40,12 @@ def login_and_continue(driver, account):
 
     time.sleep(1.5)
     wait = WebDriverWait(driver, 2)
-    wait.until(EC.presence_of_element_located((By.XPATH, "//input[@class='otp-input one']"))).send_keys(
-        account['phone_number'][0])
+    try:
+        wait.until(EC.presence_of_element_located((By.XPATH, "//input[@class='otp-input one']"))).send_keys(
+            account['phone_number'][0])
+    except:
+        raise AuthenticationError(f"Ошибка аутентификации для аккаунта {account['iin']}: Неверный ИИН или пароль.")
+
     driver.find_element(By.XPATH, "//input[@class='otp-input two']").send_keys(account['phone_number'][1])
     driver.find_element(By.XPATH, "//input[@class='otp-input three']").send_keys(account['phone_number'][2])
     driver.find_element(By.XPATH, "//input[@class='otp-input four']").send_keys(account['phone_number'][3])
@@ -123,15 +128,17 @@ def process_account(account, accounts, proxies, csv_path):
             click_register_button(driver, account, accounts, csv_path)
 
         except Exception as e:
+
             change_account_status(accounts, account, "Error", csv_path)
             logging.error(f"Error processing account {account['iin']}: {e}")
 
 
 def main(proxies, accounts, csv_path):
+    ignored_statuses = ["Finished", "No Available Group"]
     with ThreadPoolExecutor(max_workers=8) as executor:
         futures = []
         for account in accounts:
-            if account['status'] != "Finished":
+            if account['status'] not in ignored_statuses:
                 future = executor.submit(process_account, account, accounts, proxies, csv_path)
                 futures.append(future)
 

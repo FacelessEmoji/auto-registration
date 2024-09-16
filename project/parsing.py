@@ -11,10 +11,6 @@ from project.errors import check_nginx_502_error
 from project.functions import change_account_status
 
 
-# Кастомное исключение для некорректных данных аутентификации
-class AuthenticationError(Exception):
-    pass
-
 
 @with_modal_check
 def navigate_to_login_page(driver, account, login_url):
@@ -49,29 +45,9 @@ def enter_password(driver, account):
 
 @with_modal_check
 def click_login_button(driver, account):
-    try:
-        wait = WebDriverWait(driver, 10)
-        login_button = wait.until(EC.element_to_be_clickable((By.ID, "kt_sign_in_submit")))
-        login_button.click()
-        time.sleep(3)  # Ждём 3 секунды после нажатия на кнопку
-
-        # Шаг 2: Проверка на наличие ошибки аутентификации
-        error_popup_xpath = "//div[@class='swal2-popup swal2-modal swal2-icon-error swal2-show']"
-        error_popup = wait.until(EC.presence_of_element_located((By.XPATH, error_popup_xpath)))
-
-        # Ищем текст ошибки на разных языках
-        error_message_xpath = "//div[@id='swal2-content']/h2"
-        error_message_element = error_popup.find_element(By.XPATH, error_message_xpath)
-        error_text = error_message_element.text
-        print(error_text)
-
-        # Проверяем текст ошибки
-        if "Қате ЖСН немесе құпиясөз!" in error_text or "Ошибка!" in error_text:
-            raise AuthenticationError(f"Ошибка аутентификации для аккаунта {account['iin']}: Неверный ИИН или пароль.")
-
-    except AuthenticationError as auth_err:
-        print("поймал")
-        raise
+    wait = WebDriverWait(driver, 10)
+    login_button = wait.until(EC.element_to_be_clickable((By.ID, "kt_sign_in_submit")))
+    login_button.click()
 
 
 @with_modal_check
@@ -115,7 +91,7 @@ def click_each_tab_and_check_group(driver):
 
         # Прокрутка до ul элемента
         driver.execute_script("arguments[0].scrollIntoView(true);", ul_element)
-        time.sleep(1)  # Добавить небольшую паузу, чтобы прокрутка завершилась
+        time.sleep(0.5)  # Добавить небольшую паузу, чтобы прокрутка завершилась
 
         # Найти все li элементы внутри ul
         li_elements = ul_element.find_elements(By.XPATH, ".//li[@class='nav-item']")
@@ -127,11 +103,11 @@ def click_each_tab_and_check_group(driver):
             try:
                 if index != 0:  # Пропустить первый элемент
                     driver.execute_script("arguments[0].scrollIntoView(true);", li)
-                    time.sleep(1)  # Добавить небольшую паузу, чтобы прокрутка завершилась
+                    time.sleep(0.3)  # Добавить небольшую паузу, чтобы прокрутка завершилась
 
                     a_element = li.find_element(By.XPATH, ".//a[@class='nav-link m-0 me-4']")
                     driver.execute_script("arguments[0].scrollIntoView(true);", a_element)
-                    time.sleep(1)  # Добавить небольшую паузу, чтобы прокрутка завершилась
+                    time.sleep(0.3)  # Добавить небольшую паузу, чтобы прокрутка завершилась
 
                     driver.execute_script("arguments[0].click();", a_element)
                     time.sleep(1)  # Добавить паузу между кликами, если нужно
@@ -141,7 +117,7 @@ def click_each_tab_and_check_group(driver):
                     EC.presence_of_element_located((By.XPATH, progress_info_xpath))
                 )
 
-                time.sleep(1)
+                time.sleep(0.5)
 
                 students_text = progress_info_element.find_element(By.XPATH, ".//div/span/span").text
                 students_current, students_total = map(int, students_text.split('/'))
@@ -186,7 +162,7 @@ def click_register_button(driver, account, accounts, csv_path):
     if not check_nginx_502_error(driver):
         logging.error("Failed to resolve 502 error after retries, exiting...")
         return
-    while attempts < 200:  # для тестов
+    while attempts < 500:
         try:
             wait = WebDriverWait(driver, 50)
             button_xpath = "//button[contains(@class, 'btn') and contains(@class, 'btn-sm') and contains(@class, 'btn-primary') and contains(@class, 'text-nowrap') and contains(@class, 'ms-3')]"
@@ -287,14 +263,9 @@ def fill_modal_form(driver, account, accounts, csv_path):
             checkbox = wait.until(EC.element_to_be_clickable((By.XPATH, checkbox_xpath)))
             checkbox.click()
 
-            print("Форма заполнена")
-
             submit_button_xpath = "//button[contains(text(), 'Записаться')]"
             submit_button = wait.until(EC.element_to_be_clickable((By.XPATH, submit_button_xpath)))
             submit_button.click()
-
-            success_message_xpath = "//div[@class='swal2-icon-success']"
-            error_message_xpath = "//div[@class='swal2-icon-error']"
 
             try:
                 element = WebDriverWait(driver, 1).until(
