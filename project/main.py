@@ -15,11 +15,11 @@ import logging
 from selenium.webdriver.chrome.service import Service as ChromeService
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from project.errors import check_nginx_502_error
-from project.exceptions import AuthenticationError, PhoneNumbersError
-from project.exceptions import AuthenticationError, NoAvailableGroupsError
+from project.exceptions import PhoneNumbersError
+from project.exceptions import AuthenticationError
 from project.parsing import navigate_to_login_page, click_iin_bin_link, enter_iin, enter_password, \
     click_login_button, \
-    click_continue_button, change_language_to_russian, click_register_button
+    change_language_to_russian, click_register_button
 from project.functions import change_account_status
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s', handlers=[
@@ -86,16 +86,13 @@ def process_account(account, accounts, proxies, csv_path):
     chrome_install = ChromeDriverManager().install()
     folder = os.path.dirname(chrome_install)
 
-    # Определяем имя файла ChromeDriver в зависимости от ОС
     if platform.system() == "Windows":
         chromedriver_path = os.path.join(folder, "chromedriver.exe")
     else:
         chromedriver_path = os.path.join(folder, "chromedriver")
 
-    # Указываем путь к ChromeDriver
     service = ChromeService(chromedriver_path)
 
-    # Настройки для безголового режима Chrome
     chrome_options = Options()
     # chrome_options.add_argument('--headless')
     chrome_options.add_argument('--no-sandbox')
@@ -103,7 +100,6 @@ def process_account(account, accounts, proxies, csv_path):
     chrome_options.add_argument('--ignore-certificate-errors')
     chrome_options.add_argument('--ignore-ssl-errors')
 
-    # Запуск браузера с заданными опциями и сервисом
     with webdriver.Chrome(seleniumwire_options=proxy_options, service=service, options=chrome_options) as driver:
         try:
             change_account_status(accounts, account, "Running", csv_path)

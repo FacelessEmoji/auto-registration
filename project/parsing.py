@@ -127,7 +127,7 @@ def click_each_tab_and_check_group(driver):
 
                 # Проверка на возможное деление на ноль
                 if students_total == 0:
-                    logging.error(f"Total students is 0 in group at index {index + 1}, skipping group.")
+                    # logging.error(f"Total students is 0 in group at index {index + 1}, skipping group.")
                     continue
 
                 total_participants = students_current + queue_count
@@ -136,8 +136,8 @@ def click_each_tab_and_check_group(driver):
                 # Проверка, если процент не равен 1
                 if percentage_filled != 1:
                     indices_with_mismatch.append(index + 1)  # Добавить индекс (начинается с 1)
-                    logging.info(
-                        f"Added group {index + 1}: filled {total_participants}/{students_total} )")
+                    # logging.info(
+                    #     f"Added group {index + 1}: filled {total_participants}/{students_total} )")
 
             except Exception as e:
                 logging.error(f"Error occurred while processing group at index {index + 1}: {e}")
@@ -195,6 +195,7 @@ def click_register_button(driver, account, accounts, csv_path):
 
 
 def fill_modal_form(driver, account, accounts, csv_path):
+
     list_of_groups = click_each_tab_and_check_group(driver)
 
     if not list_of_groups:
@@ -202,8 +203,7 @@ def fill_modal_form(driver, account, accounts, csv_path):
         logging.error(f"Failed to enroll account {account['iin']} in group: No available spots.")
         return
 
-    # group_number = random.choice(list_of_groups)
-    group_number = 2
+    group_number = random.choice(list_of_groups)
 
     if check_nginx_502_error(driver):
         try:
@@ -223,8 +223,6 @@ def fill_modal_form(driver, account, accounts, csv_path):
                 None
 
             first_option_xpath = f"//ul[@id='vs2__listbox' and contains(@class, 'vs__dropdown-menu')]/li[@role='option'][{account.get('child_in_order')}]"
-
-            wait = WebDriverWait(driver, 10)
             first_option = wait.until(EC.element_to_be_clickable((By.XPATH, first_option_xpath)))
             first_option.click()
 
@@ -242,7 +240,7 @@ def fill_modal_form(driver, account, accounts, csv_path):
             except:
                 None
 
-            wait = WebDriverWait(driver, 10)
+
             second_first_option_xpath = f"//ul[@id='vs3__listbox' and contains(@class, 'vs__dropdown-menu')]/li[@role='option'][{group_number}]"
             second_first_option = wait.until(EC.element_to_be_clickable((By.XPATH, second_first_option_xpath)))
             second_first_option.click()
@@ -255,7 +253,6 @@ def fill_modal_form(driver, account, accounts, csv_path):
             submit_button = wait.until(EC.element_to_be_clickable((By.XPATH, submit_button_xpath)))
 
             submit_button.click()
-
             try:
                 element = WebDriverWait(driver, 1).until(
                     EC.visibility_of_element_located((By.ID, "swal2-content"))
@@ -264,6 +261,7 @@ def fill_modal_form(driver, account, accounts, csv_path):
                     logging.error(f"Failed to enroll account {account['iin']} in group: No available spots.")
                     change_account_status(accounts, account, "No Spots", csv_path)
                     raise NoAvailableGroupsError("No available spots in the group.")
+                #TODO: Проверить форму при успешной реги и поправить эту срань
             except NoAvailableGroupsError as e:
                 raise Exception(e)
             except Exception:
