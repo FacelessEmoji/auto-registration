@@ -207,13 +207,10 @@ def fill_modal_form(driver, account, accounts, csv_path):
             except:
                 None
 
-
-            first_option_xpath = f"//ul[@id='vs2__listbox' and contains(@class, 'vs__dropdown-menu')]/li[@role='option'][{account["status_code"]}]"
+            first_option_xpath = f"//ul[@id='vs2__listbox' and contains(@class, 'vs__dropdown-menu')]/li[@role='option'][{account["child_in_order"]}]"
             first_option = wait.until(EC.element_to_be_clickable((By.XPATH, first_option_xpath)))
             first_option = wait.until(EC.element_to_be_clickable((By.XPATH, first_option_xpath)))
             first_option.click()
-
-
 
             second_element_xpath = "//div[@class='vs__selected-options']/input[@placeholder='Выберите группу' and not(@disabled)]"
             second_element = wait.until(EC.element_to_be_clickable((By.XPATH, second_element_xpath)))
@@ -236,8 +233,6 @@ def fill_modal_form(driver, account, accounts, csv_path):
             checkbox_xpath = "//input[@type='checkbox' and @id='checkbox']"
             checkbox = wait.until(EC.element_to_be_clickable((By.XPATH, checkbox_xpath)))
             checkbox.click()
-
-            print("Форма заполнена")
 
             submit_button_xpath = "//button[contains(text(), 'Записаться')]"
             submit_button = wait.until(EC.element_to_be_clickable((By.XPATH, submit_button_xpath)))

@@ -100,9 +100,8 @@ def process_account(account, accounts, proxies, csv_path):
     with webdriver.Chrome(seleniumwire_options=proxy_options, service=service, options=chrome_options) as driver:
         try:
             change_account_status(accounts, account, "Running", csv_path)
-
             login_and_continue(driver, account)
-            time.sleep(3)
+            time.sleep(2)
             try:
                 popup_button = driver.find_element("css selector", "button.swal2-confirm.btn-light-danger")
                 if popup_button.is_displayed():
@@ -111,8 +110,8 @@ def process_account(account, accounts, proxies, csv_path):
                 else:
                     logging.info("Попап не отображается.")
             except NoSuchElementException:
-                logging.info("Попап не найден.")
-
+                var = None
+            time.sleep(0.5)
             change_language_to_russian(driver, account)
 
             driver.get(account["target_url"])

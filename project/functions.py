@@ -33,7 +33,6 @@ def save_accounts_to_txt(file_path, accounts):
             for account in accounts:
                 file.write(
                     f"{account['iin']};{account['password']};{account['phone_number']};{account['target_url']};{account['child_in_order']};{account['status']}\n")
-        print(f"Accounts saved to {file_path}")
     except Exception as e:
         print(f"Error saving accounts to TXT: {e}")
 
