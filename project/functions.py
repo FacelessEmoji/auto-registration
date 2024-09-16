@@ -6,10 +6,11 @@ def parse_accounts_from_txt(file_path):
             line = line.strip()
             if line:
                 # Разделяем строку по символу `;`
-                iin, password, target_url, child_in_order, status = line.split(';')
+                iin, password, phone_number, target_url, child_in_order, status = line.split(';')
                 account = {
                     "iin": iin,
                     "password": password,
+                    "phone_number": phone_number,  # Добавляем phone_number
                     "target_url": target_url,
                     "child_in_order": child_in_order,
                     "status": status
@@ -31,7 +32,7 @@ def save_accounts_to_txt(file_path, accounts):
         with open(file_path, mode='w', encoding='utf-8') as file:
             for account in accounts:
                 file.write(
-                    f"{account['iin']};{account['password']};{account['target_url']};{account['child_in_order']};{account['status']}\n")
+                    f"{account['iin']};{account['password']};{account['phone_number']};{account['target_url']};{account['child_in_order']};{account['status']}\n")
         print(f"Accounts saved to {file_path}")
     except Exception as e:
         print(f"Error saving accounts to TXT: {e}")
@@ -52,5 +53,6 @@ def update_account_in_list(accounts, updated_account):
             break
 
 
+# Форматирование данных аккаунта для вывода
 def format_account_text(account):
-    return f"IIN: {account['iin']}, Password: {account['password']}, URL: {account['target_url']}, Status: {account['status']}"
+    return f"IIN: {account['iin']}, Password: {account['password']}, Phone: {account['phone_number']}, URL: {account['target_url']}, Status: {account['status']}"
