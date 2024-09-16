@@ -7,4 +7,5 @@ if __name__ == "__main__":
 
     proxy = load_proxies(proxy_path)
     accounts = parse_accounts_from_txt(accounts_path)
+    print(accounts)
     main(proxy, accounts, accounts_path)

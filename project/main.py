@@ -2,9 +2,12 @@ import os
 import platform
 import random
 
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.common.by import By
 from selenium import webdriver
 from selenium.common import NoSuchElementException
 from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.support.wait import WebDriverWait
 from webdriver_manager.chrome import ChromeDriverManager
 from seleniumwire import webdriver
 import time
@@ -33,7 +36,31 @@ def login_and_continue(driver, account):
     enter_iin(driver, account)
     enter_password(driver, account)
     click_login_button(driver, account)
-    click_continue_button(driver, account)
+
+    time.sleep(1.5)
+    wait = WebDriverWait(driver, 2)
+    wait.until(EC.presence_of_element_located((By.XPATH, "//input[@class='otp-input one']"))).send_keys(
+        account['phone_number'][0])
+    driver.find_element(By.XPATH, "//input[@class='otp-input two']").send_keys(account['phone_number'][1])
+    driver.find_element(By.XPATH, "//input[@class='otp-input three']").send_keys(account['phone_number'][2])
+    driver.find_element(By.XPATH, "//input[@class='otp-input four']").send_keys(account['phone_number'][3])
+
+    try:
+        success_popup = wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, '.swal2-popup.swal2-icon-success')))
+
+        if success_popup.is_displayed():
+            continue_button = success_popup.find_element(By.CSS_SELECTOR, '.swal2-confirm')
+            wait.until(EC.element_to_be_clickable(continue_button))
+            continue_button.click()
+
+    except Exception as e:
+        error_popup = wait.until(EC.presence_of_element_located((By.CLASS_NAME, "swal2-popup")))
+        error_icon = driver.find_element(By.CLASS_NAME, "swal2-icon-error")
+        if error_icon.is_displayed():
+            raise Exception("Ошибка: Неверные последние 4 цифры номера телефона!")
+        else:
+            raise Exception("login_and_continue error")
+
     logging.info(f"Account {account['iin']}: Logged into main menu")
 
 
@@ -75,7 +102,7 @@ def process_account(account, accounts, proxies, csv_path):
             change_account_status(accounts, account, "Running", csv_path)
 
             login_and_continue(driver, account)
-            time.sleep(2)
+            time.sleep(3)
             try:
                 popup_button = driver.find_element("css selector", "button.swal2-confirm.btn-light-danger")
                 if popup_button.is_displayed():
@@ -102,7 +129,7 @@ def process_account(account, accounts, proxies, csv_path):
 
 
 def main(proxies, accounts, csv_path):
-    with ThreadPoolExecutor(max_workers=20) as executor:
+    with ThreadPoolExecutor(max_workers=8) as executor:
         futures = []
         for account in accounts:
             if account['status'] != "Finished":
