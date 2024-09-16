@@ -2,7 +2,6 @@ import os
 import platform
 import random
 
-
 from selenium import webdriver
 from selenium.common import NoSuchElementException
 from selenium.webdriver.chrome.options import Options
@@ -64,7 +63,7 @@ def process_account(account, accounts, proxies, csv_path):
 
     # Настройки для безголового режима Chrome
     chrome_options = Options()
-    chrome_options.add_argument('--headless')
+    # chrome_options.add_argument('--headless')
     chrome_options.add_argument('--no-sandbox')
     chrome_options.add_argument('--disable-dev-shm-usage')
     chrome_options.add_argument('--ignore-certificate-errors')
@@ -86,7 +85,6 @@ def process_account(account, accounts, proxies, csv_path):
                     logging.info("Попап не отображается.")
             except NoSuchElementException:
                 logging.info("Попап не найден.")
-
 
             change_language_to_russian(driver, account)
 
@@ -116,6 +114,3 @@ def main(proxies, accounts, csv_path):
                 future.result()
             except Exception as e:
                 logging.error(f"Exception in thread: {e}")
-
-
-

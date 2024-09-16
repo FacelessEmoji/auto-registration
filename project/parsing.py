@@ -90,7 +90,7 @@ def click_each_tab_and_check_group(driver):
 
         # Прокрутка до ul элемента
         driver.execute_script("arguments[0].scrollIntoView(true);", ul_element)
-        time.sleep(0.5)  # Добавить небольшую паузу, чтобы прокрутка завершилась
+        time.sleep(1)  # Добавить небольшую паузу, чтобы прокрутка завершилась
 
         # Найти все li элементы внутри ul
         li_elements = ul_element.find_elements(By.XPATH, ".//li[@class='nav-item']")
@@ -102,12 +102,12 @@ def click_each_tab_and_check_group(driver):
             try:
                 if index != 0:  # Пропустить первый элемент
                     driver.execute_script("arguments[0].scrollIntoView(true);", li)
-                    time.sleep(0.3)  # Добавить небольшую паузу, чтобы прокрутка завершилась
+                    time.sleep(1)  # Добавить небольшую паузу, чтобы прокрутка завершилась
 
                     a_element = li.find_element(By.XPATH, ".//a[@class='nav-link m-0 me-4']")
 
                     driver.execute_script("arguments[0].scrollIntoView(true);", a_element)
-                    time.sleep(0.3)  # Добавить небольшую паузу, чтобы прокрутка завершилась
+                    time.sleep(1)  # Добавить небольшую паузу, чтобы прокрутка завершилась
 
                     driver.execute_script("arguments[0].click();", a_element)
                     time.sleep(1)  # Добавить паузу между кликами, если нужно
@@ -117,7 +117,7 @@ def click_each_tab_and_check_group(driver):
                     EC.presence_of_element_located((By.XPATH, progress_info_xpath))
                 )
 
-                time.sleep(0.5)
+                time.sleep(1)
 
                 students_text = progress_info_element.find_element(By.XPATH, ".//div/span/span").text
                 students_current, students_total = map(int, students_text.split('/'))
@@ -125,7 +125,15 @@ def click_each_tab_and_check_group(driver):
                 queue_text = progress_info_element.find_element(By.XPATH, ".//div[@class='mt-5']/h3/span").text
                 queue_count = int(queue_text)
 
-                if (students_current + queue_count) / students_total != 1:
+                print(students_current)
+                print(students_total)
+                print(queue_count)
+
+                # TODO: Оттрекать ошибку и сделать нормальный трай/кетч
+                if (students_total == 0) or (students_current + queue_count == 0) or (
+                        students_current + queue_count) / students_total != 0:
+                    logging.error(f"Error people amount people in group: {e}")
+                elif (students_current + queue_count) / students_total != 1:
                     indices_with_mismatch.append(index + 1)  # Добавить индекс (начинается с 1)
 
 
@@ -207,7 +215,7 @@ def fill_modal_form(driver, account, accounts, csv_path):
             except:
                 None
 
-            first_option_xpath = f"//ul[@id='vs2__listbox' and contains(@class, 'vs__dropdown-menu')]/li[@role='option'][{account.get('children_number')}]"
+            first_option_xpath = f"//ul[@id='vs2__listbox' and contains(@class, 'vs__dropdown-menu')]/li[@role='option'][{account.get('child_in_order')}]"
 
             first_option = wait.until(EC.element_to_be_clickable((By.XPATH, first_option_xpath)))
             first_option = wait.until(EC.element_to_be_clickable((By.XPATH, first_option_xpath)))
@@ -248,7 +256,7 @@ def fill_modal_form(driver, account, accounts, csv_path):
                 element = WebDriverWait(driver, 1).until(
                     EC.visibility_of_element_located((By.ID, "swal2-content"))
                 )
-
+                # TODO: убрать else, поставить успешно или казахская хрень
                 if "Ошибка!" in element.text:
                     logging.error(f"Failed to enroll account {account['iin']} in group: No available spots.")
                     change_account_status(accounts, account, "Error", csv_path)
