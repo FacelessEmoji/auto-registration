@@ -115,6 +115,6 @@
 800628400800;Qwerty77@@;1111;https://damubala.kz/parent/sections/18394?classId=84100;1;Not Started
 930624400538;Qwerty77@;1111;https://damubala.kz/parent/sections/18396?classId=84129;1;Not Started
 930624400538;Qwerty77@;1111;https://damubala.kz/parent/sections/18396?classId=84129;1;Not Started
-760220400981;123456Aa@;2430;https://damubala.kz/supplier/sections/14248?classId=62237;1;Not Started
-890116402344;123456Aa@;5522;https://damubala.kz/supplier/sections/14248?classId=62237;1;Not Started
-890116402344;123456Aa@;5522;https://damubala.kz/supplier/sections/14248?classId=62237;1;Not Started
+760220400981;123456Aa@;2430;https://damubala.kz/parent/sections/14248?classId=62237;1;Not Started
+890116402344;123456Aa@;5522;https://damubala.kz/parent/sections/14248?classId=62237;1;Not Started
+890116402344;123456Aa@;5522;https://damubala.kz/parent/sections/14248?classId=62237;1;Not Started
