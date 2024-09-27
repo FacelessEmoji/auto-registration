@@ -31,7 +31,7 @@ sudo apt update
 sudo apt install -y wget curl unzip git python3 python3-pip  # Добавлены Python и pip
 
 # Скачивание и установка ChromeDriver
-CHROMEDRIVER_URL="https://storage.googleapis.com/chrome-for-testing-public/128.0.6613.137/linux64/chromedriver-linux64.zip"
+CHROMEDRIVER_URL="https://storage.googleapis.com/chrome-for-testing-public/129.0.6668.70/linux64/chromedriver-linux64.zip"
 echo "Скачивание ChromeDriver..."
 wget -O /tmp/chromedriver.zip $CHROMEDRIVER_URL
 
