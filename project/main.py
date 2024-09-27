@@ -94,7 +94,7 @@ def process_account(account, accounts, proxies, csv_path):
     service = ChromeService(chromedriver_path)
 
     chrome_options = Options()
-    # chrome_options.add_argument('--headless')
+    chrome_options.add_argument('--headless')
     chrome_options.add_argument('--no-sandbox')
     chrome_options.add_argument('--disable-dev-shm-usage')
     chrome_options.add_argument('--ignore-certificate-errors')
