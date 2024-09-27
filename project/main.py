@@ -100,8 +100,8 @@ def process_account(account, accounts, proxies, csv_path):
     chrome_options.add_argument('--ignore-certificate-errors')
     chrome_options.add_argument('--ignore-ssl-errors')
 
-    # with webdriver.Chrome(seleniumwire_options=proxy_options, service=service, options=chrome_options) as driver:
-    with webdriver.Chrome(service=service, options=chrome_options) as driver:
+    with webdriver.Chrome(seleniumwire_options=proxy_options, service=service, options=chrome_options) as driver:
+    # with webdriver.Chrome(service=service, options=chrome_options) as driver:
         try:
             change_account_status(accounts, account, "Running", csv_path)
             login_and_continue(driver, account)
@@ -140,7 +140,7 @@ def process_account(account, accounts, proxies, csv_path):
 def main(proxies, accounts, csv_path):
     # TODO: Расширяем и выносим
     ignored_statuses = ["Finished", "No Available Group", "Authentication Error", "Phone Numbers Error"]
-    with ThreadPoolExecutor(max_workers=8) as executor:
+    with ThreadPoolExecutor(max_workers=30) as executor:
         futures = []
         for account in accounts:
             if account['status'] not in ignored_statuses:
