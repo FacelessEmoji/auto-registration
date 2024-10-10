@@ -48,6 +48,7 @@ def click_login_button(driver, account):
     wait = WebDriverWait(driver, 10)
     login_button = wait.until(EC.element_to_be_clickable((By.ID, "kt_sign_in_submit")))
     login_button.click()
+    time.sleep(4)
 
 
 @with_modal_check
@@ -81,6 +82,7 @@ def change_language_to_russian(driver, account):
         logging.error(f"Account {account['iin']}: Error changing language to Russian - {e}")
 
 
+# Поправил вроде как
 def click_each_tab_and_check_group(driver):
     indices_with_mismatch = []
 
@@ -103,11 +105,11 @@ def click_each_tab_and_check_group(driver):
             try:
                 if index != 0:  # Пропустить первый элемент
                     driver.execute_script("arguments[0].scrollIntoView(true);", li)
-                    time.sleep(0.3)  # Добавить небольшую паузу, чтобы прокрутка завершилась
+                    time.sleep(0.5)  # Добавить небольшую паузу, чтобы прокрутка завершилась
 
                     a_element = li.find_element(By.XPATH, ".//a[@class='nav-link m-0 me-4']")
                     driver.execute_script("arguments[0].scrollIntoView(true);", a_element)
-                    time.sleep(0.3)  # Добавить небольшую паузу, чтобы прокрутка завершилась
+                    time.sleep(0.5)  # Добавить небольшую паузу, чтобы прокрутка завершилась
 
                     driver.execute_script("arguments[0].click();", a_element)
                     time.sleep(1)  # Добавить паузу между кликами, если нужно
@@ -117,7 +119,7 @@ def click_each_tab_and_check_group(driver):
                     EC.presence_of_element_located((By.XPATH, progress_info_xpath))
                 )
 
-                time.sleep(0.5)
+                time.sleep(1)
 
                 students_text = progress_info_element.find_element(By.XPATH, ".//div/span/span").text
                 students_current, students_total = map(int, students_text.split('/'))
@@ -125,19 +127,14 @@ def click_each_tab_and_check_group(driver):
                 queue_text = progress_info_element.find_element(By.XPATH, ".//div[@class='mt-5']/h3/span").text
                 queue_count = int(queue_text)
 
-                # Проверка на возможное деление на ноль
                 if students_total == 0:
-                    # logging.error(f"Total students is 0 in group at index {index + 1}, skipping group.")
                     continue
 
                 total_participants = students_current + queue_count
                 percentage_filled = total_participants / students_total
 
-                # Проверка, если процент не равен 1
                 if percentage_filled != 1:
-                    indices_with_mismatch.append(index + 1)  # Добавить индекс (начинается с 1)
-                    # logging.info(
-                    #     f"Added group {index + 1}: filled {total_participants}/{students_total} )")
+                    return index + 1
 
             except Exception as e:
                 logging.error(f"Error occurred while processing group at index {index + 1}: {e}")
@@ -145,7 +142,7 @@ def click_each_tab_and_check_group(driver):
     except Exception as e:
         logging.error(f"Error occurred while clicking each tab: {e}")
 
-    return indices_with_mismatch
+    return 1
 
 
 @with_modal_check
@@ -194,16 +191,14 @@ def click_register_button(driver, account, accounts, csv_path):
     raise Exception("Reached maximum number of attempts. Exiting...")
 
 
+# TODO: Убрал дрочь со списком, только переменная, надо проверить
 def fill_modal_form(driver, account, accounts, csv_path):
+    selected_group = click_each_tab_and_check_group(driver)
 
-    list_of_groups = click_each_tab_and_check_group(driver)
-
-    if not list_of_groups:
+    if not selected_group:
         change_account_status(accounts, account, "No Available Group", csv_path)
         logging.error(f"Failed to enroll account {account['iin']} in group: No available spots.")
         return
-
-    group_number = random.choice(list_of_groups)
 
     if check_nginx_502_error(driver):
         try:
@@ -240,8 +235,7 @@ def fill_modal_form(driver, account, accounts, csv_path):
             except:
                 None
 
-
-            second_first_option_xpath = f"//ul[@id='vs3__listbox' and contains(@class, 'vs__dropdown-menu')]/li[@role='option'][{group_number}]"
+            second_first_option_xpath = f"//ul[@id='vs3__listbox' and contains(@class, 'vs__dropdown-menu')]/li[@role='option'][{selected_group}]"
             second_first_option = wait.until(EC.element_to_be_clickable((By.XPATH, second_first_option_xpath)))
             second_first_option.click()
 
@@ -261,7 +255,7 @@ def fill_modal_form(driver, account, accounts, csv_path):
                     logging.error(f"Failed to enroll account {account['iin']} in group: No available spots.")
                     change_account_status(accounts, account, "No Spots", csv_path)
                     raise NoAvailableGroupsError("No available spots in the group.")
-                #TODO: Проверить форму при успешной реги и поправить эту срань
+                # TODO: Проверить форму при успешной реги и поправить эту срань
             except NoAvailableGroupsError as e:
                 raise Exception(e)
             except Exception:
