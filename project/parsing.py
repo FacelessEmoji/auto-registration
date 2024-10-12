@@ -93,7 +93,7 @@ def click_each_tab_and_check_group(driver):
 
         # Прокрутка до ul элемента
         driver.execute_script("arguments[0].scrollIntoView(true);", ul_element)
-        time.sleep(0.5)  # Добавить небольшую паузу, чтобы прокрутка завершилась
+        time.sleep(0.1)  # Добавить небольшую паузу, чтобы прокрутка завершилась
 
         # Найти все li элементы внутри ul
         li_elements = ul_element.find_elements(By.XPATH, ".//li[@class='nav-item']")
@@ -105,21 +105,21 @@ def click_each_tab_and_check_group(driver):
             try:
                 if index != 0:  # Пропустить первый элемент
                     driver.execute_script("arguments[0].scrollIntoView(true);", li)
-                    time.sleep(0.5)  # Добавить небольшую паузу, чтобы прокрутка завершилась
+                    time.sleep(0.1)  # Добавить небольшую паузу, чтобы прокрутка завершилась
 
                     a_element = li.find_element(By.XPATH, ".//a[@class='nav-link m-0 me-4']")
                     driver.execute_script("arguments[0].scrollIntoView(true);", a_element)
-                    time.sleep(0.5)  # Добавить небольшую паузу, чтобы прокрутка завершилась
+                    time.sleep(0.1)  # Добавить небольшую паузу, чтобы прокрутка завершилась
 
                     driver.execute_script("arguments[0].click();", a_element)
-                    time.sleep(1)  # Добавить паузу между кликами, если нужно
+                    time.sleep(0.5)  # Добавить паузу между кликами, если нужно
 
                 progress_info_xpath = "//div[@class='section__schedule-progress']"
                 progress_info_element = WebDriverWait(driver, 10).until(
                     EC.presence_of_element_located((By.XPATH, progress_info_xpath))
                 )
 
-                time.sleep(1)
+                time.sleep(0.5)
 
                 students_text = progress_info_element.find_element(By.XPATH, ".//div/span/span").text
                 students_current, students_total = map(int, students_text.split('/'))
@@ -216,52 +216,72 @@ def fill_modal_form(driver, account, accounts, csv_path):
             except:
                 None
 
-            first_option_xpath = f"//ul[@id='vs2__listbox' and contains(@class, 'vs__dropdown-menu')]/li[@role='option'][{account.get('child_in_order')}]"
+            options_xpath = "//ul[@id='vs2__listbox' and contains(@class, 'vs__dropdown-menu')]/li[@role='option']"
+            options = wait.until(EC.presence_of_all_elements_located((By.XPATH, options_xpath)))
+
+            child_in_order = None
+            desired_value = account.get('child_in_order')
+
+            for i, option in enumerate(options, start=1):
+                if desired_value in option.text:
+                    child_in_order = i
+                    break
+
+            # Если не найдено нужного значения
+            if child_in_order is None:
+                change_account_status(accounts, account, "No child", csv_path)
+                logging.error(f"Failed to enroll account {account['iin']} in group: No child name matches.")
+                return
+
+            # Кликаем по найденному элементу
+            first_option_xpath = f"//ul[@id='vs2__listbox' and contains(@class, 'vs__dropdown-menu')]/li[@role='option'][{child_in_order}]"
             first_option = wait.until(EC.element_to_be_clickable((By.XPATH, first_option_xpath)))
             first_option.click()
 
-            second_element_xpath = "//div[@class='vs__selected-options']/input[@placeholder='Выберите группу' and not(@disabled)]"
-            second_element = wait.until(EC.element_to_be_clickable((By.XPATH, second_element_xpath)))
-            second_element.click()
+            time.sleep(20)
+            #
+            # second_element_xpath = "//div[@class='vs__selected-options']/input[@placeholder='Выберите группу' and not(@disabled)]"
+            # second_element = wait.until(EC.element_to_be_clickable((By.XPATH, second_element_xpath)))
+            # second_element.click()
+            #
+            # try:
+            #     wait = WebDriverWait(driver, 0.3)
+            #     element = wait.until(EC.presence_of_element_located((By.CLASS_NAME, 'vs__no-options')))
+            #     if element:
+            #         change_account_status(accounts, account, "Finished", csv_path)
+            #         logging.info(f"No options in modal form for account {account['iin']}, acc registered")
+            #         return
+            # except:
+            #     None
+            #
+            # second_first_option_xpath = f"//ul[@id='vs3__listbox' and contains(@class, 'vs__dropdown-menu')]/li[@role='option'][{selected_group}]"
+            # second_first_option = wait.until(EC.element_to_be_clickable((By.XPATH, second_first_option_xpath)))
+            # second_first_option.click()
 
-            try:
-                wait = WebDriverWait(driver, 0.3)
-                element = wait.until(EC.presence_of_element_located((By.CLASS_NAME, 'vs__no-options')))
-                if element:
-                    change_account_status(accounts, account, "Finished", csv_path)
-                    logging.info(f"No options in modal form for account {account['iin']}, acc registered")
-                    return
-            except:
-                None
+            # checkbox_xpath = "//input[@type='checkbox' and @id='checkbox']"
+            # checkbox = wait.until(EC.element_to_be_clickable((By.XPATH, checkbox_xpath)))
+            # checkbox.click()
 
-            second_first_option_xpath = f"//ul[@id='vs3__listbox' and contains(@class, 'vs__dropdown-menu')]/li[@role='option'][{selected_group}]"
-            second_first_option = wait.until(EC.element_to_be_clickable((By.XPATH, second_first_option_xpath)))
-            second_first_option.click()
-
-            checkbox_xpath = "//input[@type='checkbox' and @id='checkbox']"
-            checkbox = wait.until(EC.element_to_be_clickable((By.XPATH, checkbox_xpath)))
-            checkbox.click()
-
-            submit_button_xpath = "//button[contains(text(), 'Записаться')]"
-            submit_button = wait.until(EC.element_to_be_clickable((By.XPATH, submit_button_xpath)))
-
-            submit_button.click()
-            try:
-                element = WebDriverWait(driver, 1).until(
-                    EC.visibility_of_element_located((By.ID, "swal2-content"))
-                )
-                if "Ошибка!" in element.text:
-                    logging.error(f"Failed to enroll account {account['iin']} in group: No available spots.")
-                    change_account_status(accounts, account, "No Spots", csv_path)
-                    raise NoAvailableGroupsError("No available spots in the group.")
-                # TODO: Проверить форму при успешной реги и поправить эту срань
-            except NoAvailableGroupsError as e:
-                raise Exception(e)
-            except Exception:
-                None
-
-            change_account_status(accounts, account, "Finished", csv_path)
-            logging.info(f"Successfully enrolled account {account['iin']} in group.")
+            # submit_button_xpath = "//button[contains(text(), 'Записаться')]"
+            # submit_button = wait.until(EC.element_to_be_clickable((By.XPATH, submit_button_xpath)))
+            #
+            # submit_button.click()
+            # try:
+            #     element = WebDriverWait(driver, 1).until(
+            #         EC.visibility_of_element_located((By.ID, "swal2-content"))
+            #     )
+            #     if "Ошибка!" in element.text:
+            #         logging.error(f"Failed to enroll account {account['iin']} in group: No available spots.")
+            #         change_account_status(accounts, account, "No Spots", csv_path)
+            #         raise NoAvailableGroupsError("No available spots in the group.")
+            #     # TODO: Проверить форму при успешной реги и поправить эту срань
+            # except NoAvailableGroupsError as e:
+            #     raise Exception(e)
+            # except Exception:
+            #     None
+            #
+            # change_account_status(accounts, account, "Finished", csv_path)
+            # logging.info(f"Successfully enrolled account {account['iin']} in group.")
 
         except Exception as e:
             logging.error(f"Error filling form in account {account['iin']}: {e}")
