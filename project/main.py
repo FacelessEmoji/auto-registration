@@ -133,13 +133,13 @@ def process_account(account, accounts, proxies, csv_path):
 
 def main(proxies, accounts, csv_path):
     # TODO: Расширяем и выносим
-    ignored_statuses = ["Finished", "No Available Group", "Authentication Error", "Phone Numbers Error", "No child"]
+    ignored_statuses = ["Finished", "No Available Group", "Authentication Error", "Phone Numbers Error",
+                        "Incorrect Child Name"]
     with ThreadPoolExecutor(max_workers=5) as executor:
         futures = []
         fu_inn_checker = []
         for account in accounts:
             if account['status'] not in ignored_statuses:
-
                 future = executor.submit(process_account, account, accounts, proxies, csv_path)
                 futures.append(future)
                 fu_inn_checker.append(account['iin'])

@@ -6,13 +6,13 @@ def parse_accounts_from_txt(file_path):
             line = line.strip()
             if line:
                 # Разделяем строку по символу `;`
-                iin, password, phone_number, target_url, child_in_order, status = line.split(';')
+                iin, password, phone_number, target_url, child_name, status = line.split(';')
                 account = {
                     "iin": iin,
                     "password": password,
                     "phone_number": phone_number,  # Добавляем phone_number
                     "target_url": target_url,
-                    "child_in_order": child_in_order,
+                    "child_name": child_name,
                     "status": status
                 }
                 accounts.append(account)
@@ -32,7 +32,7 @@ def save_accounts_to_txt(file_path, accounts):
         with open(file_path, mode='w', encoding='utf-8') as file:
             for account in accounts:
                 file.write(
-                    f"{account['iin']};{account['password']};{account['phone_number']};{account['target_url']};{account['child_in_order']};{account['status']}\n")
+                    f"{account['iin']};{account['password']};{account['phone_number']};{account['target_url']};{account['child_name']};{account['status']}\n")
     except Exception as e:
         print(f"Error saving accounts to TXT: {e}")
 
