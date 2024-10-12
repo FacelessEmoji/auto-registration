@@ -1,6 +1,7 @@
 import os
 import platform
 import random
+import threading
 
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
@@ -134,19 +135,36 @@ def process_account(account, accounts, proxies, csv_path):
 def main(proxies, accounts, csv_path):
     # TODO: Расширяем и выносим
     ignored_statuses = ["Finished", "No Available Group", "Authentication Error", "Phone Numbers Error", "No child"]
+    # Инициализируем словарь блокировок для каждого iin
+    iin_locks = {}
+
+    def process_account_with_lock(account, *args):
+        iin = account['iin']
+
+        # Создаем блокировку для iin, если её еще нет
+        if iin not in iin_locks:
+            iin_locks[iin] = threading.Lock()
+
+        # Блокируем выполнение для данного iin
+        with iin_locks[iin]:
+            # Вызов основной функции обработки аккаунта
+            process_account(account, *args)
+
     with ThreadPoolExecutor(max_workers=5) as executor:
         futures = []
-        fu_inn_checker = []
+
         for account in accounts:
+            iin = account['iin']
+
+            # Проверяем, находится ли аккаунт в ignored_statuses
             if account['status'] not in ignored_statuses:
-
-                future = executor.submit(process_account, account, accounts, proxies, csv_path)
+                # Запускаем обработку аккаунта с блокировкой на iin
+                future = executor.submit(process_account_with_lock, account, accounts, proxies, csv_path)
                 futures.append(future)
-                fu_inn_checker.append(account['iin'])
 
+        # Обрабатываем завершённые задачи
         for future in as_completed(futures):
             try:
                 future.result()
-
             except Exception as e:
                 logging.error(f"Exception in thread: {e}")
