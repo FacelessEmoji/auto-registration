@@ -39,22 +39,18 @@ def login_and_continue(driver, account):
     enter_iin(driver, account)
     enter_password(driver, account)
     click_login_button(driver, account)
+    # TODO: блять почему здесь 2 ожидания ты че укуренный?
     time.sleep(1.5)
     wait = WebDriverWait(driver, 2)
-    # TODO: Бля заебал разберись с этой хуйней выглядит сомнительно
+    # Разобрался, как говорил надо просто в первую клетку вставлять
     try:
         wait.until(EC.presence_of_element_located((By.XPATH, "//input[@class='otp-input one']"))).send_keys(
-            account['phone_number'][0])
+            account['phone_number'])
     except:
-        raise AuthenticationError(f"Ошибка аутентификации для аккаунта {account['iin']}: Неверный ИИН или пароль.")
-
-    driver.find_element(By.XPATH, "//input[@class='otp-input two']").send_keys(account['phone_number'][1])
-    driver.find_element(By.XPATH, "//input[@class='otp-input three']").send_keys(account['phone_number'][2])
-    driver.find_element(By.XPATH, "//input[@class='otp-input four']").send_keys(account['phone_number'][3])
+        raise AuthenticationError(f"Ошибка аутентификации для аккаунта {account['iin']}: Неверный номер телефона.")
 
     try:
         success_popup = wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, '.swal2-popup.swal2-icon-success')))
-
         if success_popup.is_displayed():
             continue_button = success_popup.find_element(By.CSS_SELECTOR, '.swal2-confirm')
             wait.until(EC.element_to_be_clickable(continue_button))
@@ -100,8 +96,8 @@ def process_account(account, accounts, proxies, csv_path):
     chrome_options.add_argument('--ignore-certificate-errors')
     chrome_options.add_argument('--ignore-ssl-errors')
 
-    with webdriver.Chrome(seleniumwire_options=proxy_options, service=service, options=chrome_options) as driver:
-        # with webdriver.Chrome(service=service, options=chrome_options) as driver:
+    # with webdriver.Chrome(seleniumwire_options=proxy_options, service=service, options=chrome_options) as driver:
+    with webdriver.Chrome(service=service, options=chrome_options) as driver:
         try:
             change_account_status(accounts, account, "Running", csv_path)
             login_and_continue(driver, account)
@@ -113,6 +109,7 @@ def process_account(account, accounts, proxies, csv_path):
                     logging.info("Попап закрыт.")
                 else:
                     logging.info("Попап не отображается.")
+            # TODO: Нахуя эти 2 строчки снизу
             except NoSuchElementException:
                 var = None
             time.sleep(0.5)
@@ -140,7 +137,7 @@ def process_account(account, accounts, proxies, csv_path):
 def main(proxies, accounts, csv_path):
     # TODO: Расширяем и выносим
     ignored_statuses = ["Finished", "No Available Group", "Authentication Error", "Phone Numbers Error"]
-    with ThreadPoolExecutor(max_workers=8) as executor:
+    with ThreadPoolExecutor(max_workers=1) as executor:
         futures = []
         for account in accounts:
             if account['status'] not in ignored_statuses:
