@@ -219,22 +219,22 @@ def fill_modal_form(driver, account, accounts, csv_path):
             options_xpath = "//ul[@id='vs2__listbox' and contains(@class, 'vs__dropdown-menu')]/li[@role='option']"
             options = wait.until(EC.presence_of_all_elements_located((By.XPATH, options_xpath)))
 
-            child_in_order = None
-            desired_value = account.get('child_in_order')
+            child_name = None
+            desired_value = account.get('child_name')
 
             for i, option in enumerate(options, start=1):
                 if desired_value in option.text:
-                    child_in_order = i
+                    child_name = i
                     break
 
             # Если не найдено нужного значения
-            if child_in_order is None:
-                change_account_status(accounts, account, "No child", csv_path)
+            if child_name is None:
+                change_account_status(accounts, account, "Incorrect Child Name", csv_path)
                 logging.error(f"Failed to enroll account {account['iin']} in group: No child name matches.")
                 return
 
             # Кликаем по найденному элементу
-            first_option_xpath = f"//ul[@id='vs2__listbox' and contains(@class, 'vs__dropdown-menu')]/li[@role='option'][{child_in_order}]"
+            first_option_xpath = f"//ul[@id='vs2__listbox' and contains(@class, 'vs__dropdown-menu')]/li[@role='option'][{child_name}]"
             first_option = wait.until(EC.element_to_be_clickable((By.XPATH, first_option_xpath)))
             first_option.click()
 

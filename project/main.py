@@ -150,6 +150,8 @@ def main(proxies, accounts, csv_path):
             # Вызов основной функции обработки аккаунта
             process_account(account, *args)
 
+    ignored_statuses = ["Finished", "No Available Group", "Authentication Error", "Phone Numbers Error",
+                        "Incorrect Child Name"]
     with ThreadPoolExecutor(max_workers=5) as executor:
         futures = []
 
