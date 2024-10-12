@@ -191,7 +191,6 @@ def click_register_button(driver, account, accounts, csv_path):
     raise Exception("Reached maximum number of attempts. Exiting...")
 
 
-# TODO: Убрал дрочь со списком, только переменная, надо проверить
 def fill_modal_form(driver, account, accounts, csv_path):
     selected_group = click_each_tab_and_check_group(driver)
 

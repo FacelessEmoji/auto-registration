@@ -23,7 +23,7 @@ from project.parsing import navigate_to_login_page, click_iin_bin_link, enter_ii
 from project.functions import change_account_status
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s', handlers=[
-    logging.FileHandler("../log.txt", mode='a', encoding='utf-8'),
+    logging.FileHandler("./log.txt", mode='a', encoding='utf-8'),
     logging.StreamHandler()
 ])
 
@@ -39,10 +39,8 @@ def login_and_continue(driver, account):
     enter_iin(driver, account)
     enter_password(driver, account)
     click_login_button(driver, account)
-    # TODO: блять почему здесь 2 ожидания ты че укуренный?
-    time.sleep(1.5)
+
     wait = WebDriverWait(driver, 2)
-    # Разобрался, как говорил надо просто в первую клетку вставлять
     try:
         wait.until(EC.presence_of_element_located((By.XPATH, "//input[@class='otp-input one']"))).send_keys(
             account['phone_number'])
@@ -109,9 +107,8 @@ def process_account(account, accounts, proxies, csv_path):
                     logging.info("Попап закрыт.")
                 else:
                     logging.info("Попап не отображается.")
-            # TODO: Нахуя эти 2 строчки снизу
             except NoSuchElementException:
-                var = None
+                pass
             time.sleep(0.5)
             change_language_to_russian(driver, account)
 
