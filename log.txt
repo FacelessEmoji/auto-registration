@@ -488,3 +488,45 @@ Stacktrace:
 2024-10-13 03:51:44,732 - INFO - Account 890218402656: Language changed to Russian
 2024-10-13 03:51:45,622 - INFO - Account 890218402656: Navigated to https://damubala.kz/parent/sections/14181?classId=62170
 2024-10-13 03:51:50,725 - INFO - Modal content on the site
+2024-10-13 04:07:12,660 - INFO - ====== WebDriver manager ======
+2024-10-13 04:07:12,751 - INFO - Get LATEST chromedriver version for google-chrome
+2024-10-13 04:07:13,657 - INFO - Get LATEST chromedriver version for google-chrome
+2024-10-13 04:07:13,981 - INFO - Driver [/Users/natalanikolaenko/.wdm/drivers/chromedriver/mac64/129.0.6668.100/chromedriver-mac-arm64/chromedriver] found in cache
+2024-10-13 04:07:15,345 - INFO - Account 890218402656: Logging in
+2024-10-13 04:07:31,871 - INFO - Account 890218402656: Modal button clicked
+2024-10-13 04:07:32,468 - INFO - Account 890218402656: Entering IIN
+2024-10-13 04:07:32,568 - INFO - Account 890218402656: Entering password
+2024-10-13 04:07:37,270 - INFO - Account 890218402656: Logged into main menu
+2024-10-13 04:07:43,823 - INFO - Account 890218402656: Language changed to Russian
+2024-10-13 04:07:45,058 - INFO - Account 890218402656: Navigated to https://damubala.kz/parent/sections/14181?classId=62170
+2024-10-13 04:07:50,146 - INFO - Modal content on the site
+2024-10-13 04:08:12,949 - INFO - ====== WebDriver manager ======
+2024-10-13 04:08:13,045 - INFO - Get LATEST chromedriver version for google-chrome
+2024-10-13 04:08:13,279 - INFO - Get LATEST chromedriver version for google-chrome
+2024-10-13 04:08:13,548 - INFO - Driver [/Users/natalanikolaenko/.wdm/drivers/chromedriver/mac64/129.0.6668.100/chromedriver-mac-arm64/chromedriver] found in cache
+2024-10-13 04:08:14,678 - INFO - Account 890218402656: Logging in
+2024-10-13 04:12:17,054 - INFO - ====== WebDriver manager ======
+2024-10-13 04:12:17,054 - INFO - ====== WebDriver manager ======
+2024-10-13 04:12:17,161 - INFO - Get LATEST chromedriver version for google-chrome
+2024-10-13 04:12:17,162 - INFO - Get LATEST chromedriver version for google-chrome
+2024-10-13 04:12:17,460 - INFO - Get LATEST chromedriver version for google-chrome
+2024-10-13 04:12:17,461 - INFO - Get LATEST chromedriver version for google-chrome
+2024-10-13 04:12:17,740 - INFO - Driver [/Users/natalanikolaenko/.wdm/drivers/chromedriver/mac64/129.0.6668.100/chromedriver-mac-arm64/chromedriver] found in cache
+2024-10-13 04:12:17,741 - INFO - Driver [/Users/natalanikolaenko/.wdm/drivers/chromedriver/mac64/129.0.6668.100/chromedriver-mac-arm64/chromedriver] found in cache
+2024-10-13 04:12:19,108 - INFO - Account 751125403356: Logging in
+2024-10-13 04:12:19,131 - INFO - Account 890218402656: Logging in
+2024-10-13 04:12:28,593 - INFO - Account 890218402656: Modal button clicked
+2024-10-13 04:12:29,164 - INFO - Account 890218402656: Entering IIN
+2024-10-13 04:12:29,267 - INFO - Account 890218402656: Entering password
+2024-10-13 04:12:33,982 - INFO - Account 890218402656: Logged into main menu
+2024-10-13 04:12:34,340 - INFO - Account 751125403356: Modal button clicked
+2024-10-13 04:12:34,907 - INFO - Account 751125403356: Entering IIN
+2024-10-13 04:12:35,012 - INFO - Account 751125403356: Entering password
+2024-10-13 04:12:39,716 - INFO - Account 751125403356: Logged into main menu
+2024-10-13 04:12:41,375 - INFO - Account 890218402656: Language changed to Russian
+2024-10-13 04:12:43,384 - INFO - Account 890218402656: Navigated to https://damubala.kz/parent/sections/14181?classId=62170
+2024-10-13 04:12:47,964 - INFO - Account 751125403356: Language changed to Russian
+2024-10-13 04:12:48,450 - INFO - Modal content on the site
+2024-10-13 04:12:49,006 - INFO - Account 751125403356: Navigated to https://damubala.kz/parent/sections/14181?classId=62170
+2024-10-13 04:12:54,112 - INFO - Modal content on the site
+2024-10-13 04:12:56,735 - ERROR - Failed to enroll account 751125403356 in group: No child name matches.
