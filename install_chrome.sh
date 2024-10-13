@@ -28,7 +28,7 @@ remove_chromedriver
 # Установка необходимых утилит
 echo "Установка необходимых утилит..."
 sudo apt update
-sudo apt install -y wget curl unzip git python3 python3-pip  # Добавлены Python и pip
+sudo apt install -y wget curl unzip git python3 python3-pip libgbm1 libatk1.0-0 libatk-bridge2.0-0 libx11-xcb1 libxcomposite1 libxcursor1 libxdamage1 libxi6 libxtst6 libnss3 libxrandr2 libasound2 libpangocairo-1.0-0 libgtk-3-0
 
 # Скачивание и установка ChromeDriver
 CHROMEDRIVER_URL="https://storage.googleapis.com/chrome-for-testing-public/115.0.5763.0/linux64/chromedriver-linux64.zip"
