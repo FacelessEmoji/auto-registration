@@ -1,2 +1,8 @@
-890218402656;123456Zz*;1999;https://damubala.kz/parent/sections/14369?classId=72589;МЕЙІРХАН;123
-890218402656;123456Zz*;1999;https://damubala.kz/parent/sections/14369?classId=72589;ДИНАРА;Error
+890218402656;123456Zz*;1999;https://damubala.kz/parent/sections/14369?classId=72589;МЕЙІРХАН;Running
+890218402656;123456Zz*;1999;https://damubala.kz/parent/sections/14369?classId=72589;ДИНАРА;Running
+851127302482;1234567Zz*;3404;https://damubala.kz/parent/sections/14369?classId=72589;МИРАС;Finished
+851127302482;1234567Zz*;3404;https://damubala.kz/parent/sections/14369?classId=72589;ІҢКӘР;Finished
+851127302482;1234567Zz*;3404;https://damubala.kz/parent/sections/14369?classId=72589;НҰРИСЛАМ;Finished
+830621401487;1234567Zz*;3652;https://damubala.kz/parent/sections/18429?classId=82193;ХАДИША;Finished
+920327402032;1234567Zz*;0340;https://damubala.kz/parent/sections/18824?classId=85635;АЯНАТ;Finished
+920327402032;1234567Zz*;0340;https://damubala.kz/parent/sections/18824?classId=85635;ГҮЛІМ;Finished

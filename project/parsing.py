@@ -112,14 +112,12 @@ def click_each_tab_and_check_group(driver):
                     time.sleep(0.1)  # Добавить небольшую паузу, чтобы прокрутка завершилась
 
                     driver.execute_script("arguments[0].click();", a_element)
-                    time.sleep(0.5)  # Добавить паузу между кликами, если нужно
+                    time.sleep(0.4)  # Добавить паузу между кликами, если нужно
 
                 progress_info_xpath = "//div[@class='section__schedule-progress']"
                 progress_info_element = WebDriverWait(driver, 10).until(
                     EC.presence_of_element_located((By.XPATH, progress_info_xpath))
                 )
-
-                time.sleep(0.5)
 
                 students_text = progress_info_element.find_element(By.XPATH, ".//div/span/span").text
                 students_current, students_total = map(int, students_text.split('/'))
@@ -262,7 +260,9 @@ def fill_modal_form(driver, account, accounts, csv_path):
 
             submit_button_xpath = "//button[contains(text(), 'Записаться')]"
             submit_button = wait.until(EC.element_to_be_clickable((By.XPATH, submit_button_xpath)))
-            submit_button.click()
+
+            # submit_button.click()
+            return
 
             try:
                 success_popup = WebDriverWait(driver, 10).until(
@@ -277,21 +277,9 @@ def fill_modal_form(driver, account, accounts, csv_path):
                     logging.info(f"Successfully enrolled account {account['iin']} in group.")
 
             except Exception as e:
-                print(f"Не удалось найти окно с успешным сообщением: {e}")
+                change_account_status(accounts, account, "No av spots in current group", csv_path)
+                logging.info(f"No av spots in current group account {account['iin']}, {account['chlid_name']}.")
 
-            # try:
-            #     element = WebDriverWait(driver, 1).until(
-            #         EC.visibility_of_element_located((By.ID, "swal2-content"))
-            #     )
-            #     if "Ошибка!" in element.text:
-            #         logging.error(f"Failed to enroll account {account['iin']} in group: No available spots.")
-            #         change_account_status(accounts, account, "No Spots", csv_path)
-            #         raise NoAvailableGroupsError("No available spots in the group.")
-            # except NoAvailableGroupsError as e:
-            #     raise Exception(e)
-            # except Exception:
-            #     None
-            #
 
 
         except Exception as e:
