@@ -530,3 +530,185 @@ Stacktrace:
 2024-10-13 04:12:49,006 - INFO - Account 751125403356: Navigated to https://damubala.kz/parent/sections/14181?classId=62170
 2024-10-13 04:12:54,112 - INFO - Modal content on the site
 2024-10-13 04:12:56,735 - ERROR - Failed to enroll account 751125403356 in group: No child name matches.
+2024-10-13 04:16:29,222 - INFO - ====== WebDriver manager ======
+2024-10-13 04:16:29,222 - INFO - ====== WebDriver manager ======
+2024-10-13 04:16:29,313 - INFO - Get LATEST chromedriver version for google-chrome
+2024-10-13 04:16:29,313 - INFO - Get LATEST chromedriver version for google-chrome
+2024-10-13 04:16:29,664 - INFO - Get LATEST chromedriver version for google-chrome
+2024-10-13 04:16:29,664 - INFO - Get LATEST chromedriver version for google-chrome
+2024-10-13 04:16:29,929 - INFO - Driver [/Users/natalanikolaenko/.wdm/drivers/chromedriver/mac64/129.0.6668.100/chromedriver-mac-arm64/chromedriver] found in cache
+2024-10-13 04:16:29,929 - INFO - Driver [/Users/natalanikolaenko/.wdm/drivers/chromedriver/mac64/129.0.6668.100/chromedriver-mac-arm64/chromedriver] found in cache
+2024-10-13 04:16:31,432 - INFO - Account 890218402656: Logging in
+2024-10-13 04:16:31,437 - INFO - Account 751125403356: Logging in
+2024-10-13 04:16:41,834 - INFO - Account 751125403356: Modal button clicked
+2024-10-13 04:16:41,909 - INFO - Account 890218402656: Modal button clicked
+2024-10-13 04:16:42,407 - INFO - Account 751125403356: Entering IIN
+2024-10-13 04:16:42,478 - INFO - Account 890218402656: Entering IIN
+2024-10-13 04:16:42,525 - INFO - Account 751125403356: Entering password
+2024-10-13 04:16:42,572 - INFO - Account 890218402656: Entering password
+2024-10-13 04:16:47,210 - INFO - Account 751125403356: Logged into main menu
+2024-10-13 04:16:47,232 - INFO - Account 890218402656: Logged into main menu
+2024-10-13 04:16:50,233 - ERROR - Account 751125403356: Error changing language to Russian - ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2024-10-13 04:16:50,235 - ERROR - Account 890218402656: Error changing language to Russian - ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2024-10-13 04:16:50,261 - WARNING - Retrying (Retry(total=2, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x1056fb550>: Failed to establish a new connection: [Errno 61] Connection refused')': /session/bce747b5750d3ed142dc9c3b203e1915/element
+2024-10-13 04:16:50,262 - WARNING - Retrying (Retry(total=2, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x1056f9ff0>: Failed to establish a new connection: [Errno 61] Connection refused')': /session/29f87a26b312051b9aa7cccb7b8b796b/element
+2024-10-13 04:16:50,280 - WARNING - Retrying (Retry(total=1, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x107936ad0>: Failed to establish a new connection: [Errno 61] Connection refused')': /session/bce747b5750d3ed142dc9c3b203e1915/element
+2024-10-13 04:16:50,283 - WARNING - Retrying (Retry(total=1, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x1079499c0>: Failed to establish a new connection: [Errno 61] Connection refused')': /session/29f87a26b312051b9aa7cccb7b8b796b/element
+2024-10-13 04:16:50,286 - WARNING - Retrying (Retry(total=0, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x107935600>: Failed to establish a new connection: [Errno 61] Connection refused')': /session/bce747b5750d3ed142dc9c3b203e1915/element
+2024-10-13 04:16:50,313 - WARNING - Retrying (Retry(total=0, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x10566f490>: Failed to establish a new connection: [Errno 61] Connection refused')': /session/29f87a26b312051b9aa7cccb7b8b796b/element
+2024-10-13 04:16:50,313 - ERROR - Error MaxRetryError processing account 890218402656: HTTPConnectionPool(host='localhost', port=52216): Max retries exceeded with url: /session/bce747b5750d3ed142dc9c3b203e1915/element (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x103fd4220>: Failed to establish a new connection: [Errno 61] Connection refused'))
+2024-10-13 04:16:50,345 - ERROR - Error MaxRetryError processing account 751125403356: HTTPConnectionPool(host='localhost', port=52217): Max retries exceeded with url: /session/29f87a26b312051b9aa7cccb7b8b796b/element (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x105699990>: Failed to establish a new connection: [Errno 61] Connection refused'))
+2024-10-14 01:41:58,301 - INFO - ====== WebDriver manager ======
+2024-10-14 01:41:58,427 - INFO - Get LATEST chromedriver version for google-chrome
+2024-10-14 01:41:59,503 - INFO - Get LATEST chromedriver version for google-chrome
+2024-10-14 01:42:00,059 - INFO - Get LATEST chromedriver version for google-chrome
+2024-10-14 01:42:01,224 - INFO - WebDriver version 129.0.6668.100 selected
+2024-10-14 01:42:01,226 - INFO - Modern chrome version https://storage.googleapis.com/chrome-for-testing-public/129.0.6668.100/mac-arm64/chromedriver-mac-arm64.zip
+2024-10-14 01:42:01,226 - INFO - About to download new driver from https://storage.googleapis.com/chrome-for-testing-public/129.0.6668.100/mac-arm64/chromedriver-mac-arm64.zip
+2024-10-14 01:42:01,944 - INFO - Driver downloading response is 200
+2024-10-14 01:42:07,626 - INFO - Get LATEST chromedriver version for google-chrome
+2024-10-14 01:42:08,187 - INFO - Driver has been saved in cache [/Users/natalanikolaenko/.wdm/drivers/chromedriver/mac64/129.0.6668.100]
+2024-10-14 01:42:09,371 - INFO - Account 890218402656: Logging in
+2024-10-14 01:42:21,220 - INFO - Account 890218402656: Modal button clicked
+2024-10-14 01:42:21,801 - INFO - Account 890218402656: Entering IIN
+2024-10-14 01:42:21,902 - INFO - Account 890218402656: Entering password
+2024-10-14 01:42:26,614 - INFO - Account 890218402656: Logged into main menu
+2024-10-14 01:42:33,406 - INFO - Account 890218402656: Language changed to Russian
+2024-10-14 01:42:35,113 - INFO - Account 890218402656: Navigated to https://damubala.kz/parent/sections/14181?classId=62170
+2024-10-14 01:42:40,212 - INFO - Modal content on the site
+2024-10-14 01:42:42,241 - INFO - No options in modal form for account 890218402656, acc registered
+2024-10-14 01:42:42,368 - INFO - ====== WebDriver manager ======
+2024-10-14 01:42:42,470 - INFO - Get LATEST chromedriver version for google-chrome
+2024-10-14 01:42:42,932 - INFO - Get LATEST chromedriver version for google-chrome
+2024-10-14 01:42:43,399 - INFO - Driver [/Users/natalanikolaenko/.wdm/drivers/chromedriver/mac64/129.0.6668.100/chromedriver-mac-arm64/chromedriver] found in cache
+2024-10-14 01:42:44,184 - INFO - Account 890218402656: Logging in
+2024-10-14 01:42:58,846 - INFO - Account 890218402656: Modal button clicked
+2024-10-14 01:42:59,440 - INFO - Account 890218402656: Entering IIN
+2024-10-14 01:42:59,542 - INFO - Account 890218402656: Entering password
+2024-10-14 01:43:04,217 - INFO - Account 890218402656: Logged into main menu
+2024-10-14 01:43:14,242 - INFO - Account 890218402656: Language changed to Russian
+2024-10-14 01:43:16,171 - INFO - Account 890218402656: Navigated to https://damubala.kz/parent/sections/14181?classId=62170
+2024-10-14 01:43:21,269 - INFO - Modal content on the site
+2024-10-14 01:43:23,291 - INFO - No options in modal form for account 890218402656, acc registered
+2024-10-14 16:26:34,274 - INFO - ====== WebDriver manager ======
+2024-10-14 16:26:34,390 - INFO - Get LATEST chromedriver version for google-chrome
+2024-10-14 16:26:35,027 - INFO - Get LATEST chromedriver version for google-chrome
+2024-10-14 16:26:35,227 - INFO - Driver [/Users/natalanikolaenko/.wdm/drivers/chromedriver/mac64/129.0.6668.100/chromedriver-mac-arm64/chromedriver] found in cache
+2024-10-14 16:26:37,251 - INFO - Account 890218402656: Logging in
+2024-10-14 16:26:46,348 - INFO - Account 890218402656: Modal button clicked
+2024-10-14 16:26:46,939 - INFO - Account 890218402656: Entering IIN
+2024-10-14 16:26:47,057 - INFO - Account 890218402656: Entering password
+2024-10-14 16:26:51,773 - INFO - Account 890218402656: Logged into main menu
+2024-10-14 16:26:56,448 - INFO - Account 890218402656: Language changed to Russian
+2024-10-14 16:26:57,258 - INFO - Account 890218402656: Navigated to https://damubala.kz/parent/sections/14181?classId=62170
+2024-10-14 16:27:02,331 - INFO - Modal content on the site
+2024-10-14 16:27:16,218 - INFO - ====== WebDriver manager ======
+2024-10-14 16:27:16,322 - INFO - Get LATEST chromedriver version for google-chrome
+2024-10-14 16:27:16,542 - INFO - Get LATEST chromedriver version for google-chrome
+2024-10-14 16:27:16,773 - INFO - Driver [/Users/natalanikolaenko/.wdm/drivers/chromedriver/mac64/129.0.6668.100/chromedriver-mac-arm64/chromedriver] found in cache
+2024-10-14 16:27:17,824 - INFO - Account 890218402656: Logging in
+2024-10-14 16:27:24,900 - INFO - Account 890218402656: Modal button clicked
+2024-10-14 16:27:25,489 - INFO - Account 890218402656: Entering IIN
+2024-10-14 16:27:25,598 - INFO - Account 890218402656: Entering password
+2024-10-14 16:27:30,293 - INFO - Account 890218402656: Logged into main menu
+2024-10-14 16:27:35,061 - INFO - Account 890218402656: Language changed to Russian
+2024-10-14 16:27:36,057 - INFO - Account 890218402656: Navigated to https://damubala.kz/parent/sections/14181?classId=62170
+2024-10-14 16:27:42,179 - WARNING - Attempt 1 failed: Message: element click intercepted: Element <button data-v-14744a4b="" class="btn btn-sm btn-primary text-nowrap ms-3" data-bs-toggle="modal" data-bs-target="#parent-attendance-modal">...</button> is not clickable at point (1075, 20). Other element would receive the click: <div class="swal2-header">...</div>
+  (Session info: chrome=129.0.6668.91)
+Stacktrace:
+0   chromedriver                        0x00000001010e4500 cxxbridge1$str$ptr + 1917112
+1   chromedriver                        0x00000001010dc890 cxxbridge1$str$ptr + 1885256
+2   chromedriver                        0x0000000100cec538 cxxbridge1$string$len + 89424
+3   chromedriver                        0x0000000100d36040 cxxbridge1$string$len + 391256
+4   chromedriver                        0x0000000100d34674 cxxbridge1$string$len + 384652
+5   chromedriver                        0x0000000100d328a8 cxxbridge1$string$len + 377024
+6   chromedriver                        0x0000000100d31ec4 cxxbridge1$string$len + 374492
+7   chromedriver                        0x0000000100d2727c cxxbridge1$string$len + 330388
+8   chromedriver                        0x0000000100d26d18 cxxbridge1$string$len + 329008
+9   chromedriver                        0x0000000100d6ab7c cxxbridge1$string$len + 607124
+10  chromedriver                        0x0000000100d25374 cxxbridge1$string$len + 322444
+11  chromedriver                        0x0000000100d25fc4 cxxbridge1$string$len + 325596
+12  chromedriver                        0x00000001010abd2c cxxbridge1$str$ptr + 1685732
+13  chromedriver                        0x00000001010b0530 cxxbridge1$str$ptr + 1704168
+14  chromedriver                        0x0000000101090e08 cxxbridge1$str$ptr + 1575360
+15  chromedriver                        0x00000001010b0e00 cxxbridge1$str$ptr + 1706424
+16  chromedriver                        0x0000000101081f94 cxxbridge1$str$ptr + 1514316
+17  chromedriver                        0x00000001010cd62c cxxbridge1$str$ptr + 1823204
+18  chromedriver                        0x00000001010cd7ac cxxbridge1$str$ptr + 1823588
+19  chromedriver                        0x00000001010dc530 cxxbridge1$str$ptr + 1884392
+20  libsystem_pthread.dylib             0x00000001842e1034 _pthread_start + 136
+21  libsystem_pthread.dylib             0x00000001842dbe3c thread_start + 8
+
+2024-10-14 16:27:42,179 - INFO - Refreshing the page and retrying...
+2024-10-14 16:27:47,367 - INFO - Modal content on the site
+2024-10-14 16:29:22,290 - INFO - ====== WebDriver manager ======
+2024-10-14 16:29:22,370 - INFO - Get LATEST chromedriver version for google-chrome
+2024-10-14 16:29:22,587 - INFO - Get LATEST chromedriver version for google-chrome
+2024-10-14 16:29:22,817 - INFO - Driver [/Users/natalanikolaenko/.wdm/drivers/chromedriver/mac64/129.0.6668.100/chromedriver-mac-arm64/chromedriver] found in cache
+2024-10-14 16:29:23,983 - INFO - Account 890218402656: Logging in
+2024-10-14 16:29:34,076 - INFO - Account 890218402656: Modal button clicked
+2024-10-14 16:29:34,679 - INFO - Account 890218402656: Entering IIN
+2024-10-14 16:29:34,786 - INFO - Account 890218402656: Entering password
+2024-10-14 16:29:39,494 - INFO - Account 890218402656: Logged into main menu
+2024-10-14 16:29:45,121 - INFO - Account 890218402656: Language changed to Russian
+2024-10-14 16:29:46,384 - INFO - Account 890218402656: Navigated to https://damubala.kz/parent/sections/14369?classId=72589
+2024-10-14 16:29:51,487 - INFO - Modal content on the site
+2024-10-14 16:29:54,445 - INFO - Successfully enrolled account 890218402656 in group.
+2024-10-14 16:29:54,592 - INFO - ====== WebDriver manager ======
+2024-10-14 16:29:54,698 - INFO - Get LATEST chromedriver version for google-chrome
+2024-10-14 16:29:54,999 - INFO - Get LATEST chromedriver version for google-chrome
+2024-10-14 16:29:55,255 - INFO - Driver [/Users/natalanikolaenko/.wdm/drivers/chromedriver/mac64/129.0.6668.100/chromedriver-mac-arm64/chromedriver] found in cache
+2024-10-14 16:29:56,295 - INFO - Account 890218402656: Logging in
+2024-10-14 16:30:05,362 - INFO - Account 890218402656: Modal button clicked
+2024-10-14 16:30:06,583 - INFO - Account 890218402656: Entering IIN
+2024-10-14 16:30:06,694 - INFO - Account 890218402656: Entering password
+2024-10-14 16:30:11,385 - INFO - Account 890218402656: Logged into main menu
+2024-10-14 16:30:15,936 - INFO - Account 890218402656: Language changed to Russian
+2024-10-14 16:30:17,296 - INFO - Account 890218402656: Navigated to https://damubala.kz/parent/sections/14369?classId=72589
+2024-10-14 16:30:22,389 - INFO - Modal content on the site
+2024-10-14 16:30:23,605 - ERROR - Failed to enroll account 890218402656 in group: No child name matches.
+2024-10-14 16:38:12,148 - INFO - ====== WebDriver manager ======
+2024-10-14 16:38:12,242 - INFO - Get LATEST chromedriver version for google-chrome
+2024-10-14 16:38:12,515 - INFO - Get LATEST chromedriver version for google-chrome
+2024-10-14 16:38:12,785 - INFO - Driver [/Users/natalanikolaenko/.wdm/drivers/chromedriver/mac64/129.0.6668.100/chromedriver-mac-arm64/chromedriver] found in cache
+2024-10-14 16:38:13,904 - INFO - Account 890218402656: Logging in
+2024-10-14 16:38:23,958 - INFO - Account 890218402656: Modal button clicked
+2024-10-14 16:38:24,530 - INFO - Account 890218402656: Entering IIN
+2024-10-14 16:38:24,634 - INFO - Account 890218402656: Entering password
+2024-10-14 16:38:29,348 - INFO - Account 890218402656: Logged into main menu
+2024-10-14 16:38:34,274 - INFO - Account 890218402656: Language changed to Russian
+2024-10-14 16:38:35,399 - INFO - Account 890218402656: Navigated to https://damubala.kz/parent/sections/14369?classId=72589
+2024-10-14 16:38:40,521 - INFO - Modal content on the site
+2024-10-14 16:38:43,513 - INFO - Successfully enrolled account 890218402656 in group.
+2024-10-14 16:38:43,654 - INFO - ====== WebDriver manager ======
+2024-10-14 16:38:43,765 - INFO - Get LATEST chromedriver version for google-chrome
+2024-10-14 16:38:43,993 - INFO - Get LATEST chromedriver version for google-chrome
+2024-10-14 16:38:44,197 - INFO - Driver [/Users/natalanikolaenko/.wdm/drivers/chromedriver/mac64/129.0.6668.100/chromedriver-mac-arm64/chromedriver] found in cache
+2024-10-14 16:38:45,232 - INFO - Account 890218402656: Logging in
+2024-10-14 16:38:51,836 - INFO - Account 890218402656: Modal button clicked
+2024-10-14 16:38:53,408 - ERROR - Error ElementClickInterceptedException processing account 890218402656: Message: element click intercepted: Element <a data-v-6c95f903="" class="nav-link">...</a> is not clickable at point (795, 355). Other element would receive the click: <div class="modal-backdrop fade"></div>
+  (Session info: chrome=129.0.6668.91)
+Stacktrace:
+0   chromedriver                        0x0000000100ae4500 cxxbridge1$str$ptr + 1917112
+1   chromedriver                        0x0000000100adc890 cxxbridge1$str$ptr + 1885256
+2   chromedriver                        0x00000001006ec538 cxxbridge1$string$len + 89424
+3   chromedriver                        0x0000000100736040 cxxbridge1$string$len + 391256
+4   chromedriver                        0x0000000100734674 cxxbridge1$string$len + 384652
+5   chromedriver                        0x00000001007328a8 cxxbridge1$string$len + 377024
+6   chromedriver                        0x0000000100731ec4 cxxbridge1$string$len + 374492
+7   chromedriver                        0x000000010072727c cxxbridge1$string$len + 330388
+8   chromedriver                        0x0000000100726d18 cxxbridge1$string$len + 329008
+9   chromedriver                        0x000000010076ab7c cxxbridge1$string$len + 607124
+10  chromedriver                        0x0000000100725374 cxxbridge1$string$len + 322444
+11  chromedriver                        0x0000000100725fc4 cxxbridge1$string$len + 325596
+12  chromedriver                        0x0000000100aabd2c cxxbridge1$str$ptr + 1685732
+13  chromedriver                        0x0000000100ab0530 cxxbridge1$str$ptr + 1704168
+14  chromedriver                        0x0000000100a90e08 cxxbridge1$str$ptr + 1575360
+15  chromedriver                        0x0000000100ab0e00 cxxbridge1$str$ptr + 1706424
+16  chromedriver                        0x0000000100a81f94 cxxbridge1$str$ptr + 1514316
+17  chromedriver                        0x0000000100acd62c cxxbridge1$str$ptr + 1823204
+18  chromedriver                        0x0000000100acd7ac cxxbridge1$str$ptr + 1823588
+19  chromedriver                        0x0000000100adc530 cxxbridge1$str$ptr + 1884392
+20  libsystem_pthread.dylib             0x00000001842e1034 _pthread_start + 136
+21  libsystem_pthread.dylib             0x00000001842dbe3c thread_start + 8
+

@@ -1,3 +1,2 @@
-890218402656;123456Zz*;1999;https://damubala.kz/parent/sections/14181?classId=62170;ДИНАРА;Running
-890218402656;123456Zz*;1999;https://damubala.kz/parent/sections/14181?classId=62170;ДИНАРА;Running
-751125403356;123456Zz*;1999;https://damubala.kz/parent/sections/14181?classId=62170;ДИНАРА;No child
+890218402656;123456Zz*;1999;https://damubala.kz/parent/sections/14369?classId=72589;МЕЙІРХАН;123
+890218402656;123456Zz*;1999;https://damubala.kz/parent/sections/14369?classId=72589;ДИНАРА;Error
