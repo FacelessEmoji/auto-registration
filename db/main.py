@@ -1,12 +1,10 @@
 import os
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from models import Base, Account
-from queries import change_account_status, get_account_by_id  # Импортируем функцию из queries.py
+from .models import Base, Account
+from .queries import change_account_status, get_account_by_id  # Импортируем функцию из queries.py
 
-# Создаем базу данных и сессию
-DATABASE_URL = 'sqlite:///accounts.db'
-engine = create_engine(DATABASE_URL)
+engine = create_engine('sqlite:///accounts.db')
 
 
 # Создаем таблицы в базе данных
@@ -20,8 +18,7 @@ def create_database():
 
 # Функция для загрузки аккаунтов из текстового файла
 def load_accounts_from_txt_to_db(file_path):
-    Session = sessionmaker(bind=engine)
-    session = Session()
+    session = sessionmaker(bind=engine)()
 
     with open(file_path, 'r', encoding='utf-8') as file:
         for line in file:
@@ -46,7 +43,6 @@ def load_accounts_from_txt_to_db(file_path):
 
     session.commit()  # Сохраняем изменения
     session.close()  # Закрываем сессию
-
 
 # # Функция для тестирования изменения статуса аккаунтов
 # def test_change_account_status():

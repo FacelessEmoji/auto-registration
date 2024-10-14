@@ -11,11 +11,14 @@ from selenium import webdriver
 from selenium.common import NoSuchElementException
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.support.wait import WebDriverWait
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
 from webdriver_manager.chrome import ChromeDriverManager
 from seleniumwire import webdriver
 from selenium.webdriver.chrome.service import Service as ChromeService
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
+from db.queries import get_account_by_id, load_accounts_from_db
 from project.errors import check_nginx_502_error
 from project.exceptions import PhoneNumbersError
 from project.exceptions import AuthenticationError
@@ -145,7 +148,18 @@ def process_account(account, accounts, proxies, csv_path):
 
 
 def main(proxies, csv_path):
-    # accounts = load_accounts_from_db() <-- сюда срать
+    # Всегда работаем через сессию и всегда в новом месте прокидываем путь к бд
+    db_path = 'sqlite:///../db/accounts.db'
+    session = sessionmaker(bind=create_engine(f'sqlite:///{db_path}'))()
+    try:
+        accounts = load_accounts_from_db(session)  # Загружаем аккаунты, передавая сессию
+        for account in accounts:
+            print(account)
+        # Пример
+        print(get_account_by_id(session, 1).child_name)
+    finally:
+        session.close()
+
     # TODO: Расширяем и выносим
     ignored_statuses = ["Finished", "No Available Group", "Authentication Error", "Phone Numbers Error",
                         "Incorrect Child Name"]
