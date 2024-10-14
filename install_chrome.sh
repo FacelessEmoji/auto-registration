@@ -28,10 +28,10 @@ remove_chromedriver
 # Установка необходимых утилит
 echo "Установка необходимых утилит..."
 sudo apt update
-sudo apt install -y wget curl unzip git python3 python3-pip  # Добавлены Python и pip
+sudo apt install -y wget curl unzip git python3 python3-pip libgbm1 libatk1.0-0 libatk-bridge2.0-0 libx11-xcb1 libxcomposite1 libxcursor1 libxdamage1 libxi6 libxtst6 libnss3 libxrandr2 libasound2 libpangocairo-1.0-0 libgtk-3-0
 
 # Скачивание и установка ChromeDriver
-CHROMEDRIVER_URL="https://storage.googleapis.com/chrome-for-testing-public/129.0.6668.70/linux64/chromedriver-linux64.zip"
+CHROMEDRIVER_URL="https://storage.googleapis.com/chrome-for-testing-public/115.0.5763.0/linux64/chromedriver-linux64.zip"
 echo "Скачивание ChromeDriver..."
 wget -O /tmp/chromedriver.zip $CHROMEDRIVER_URL
 
@@ -42,13 +42,15 @@ sudo chmod +x /usr/bin/chromedriver
 rm /tmp/chromedriver.zip
 
 # Скачивание и установка Google Chrome
-CHROME_URL="https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb"
+CHROME_URL="https://storage.googleapis.com/chrome-for-testing-public/115.0.5763.0/linux64/chrome-linux64.zip"
 echo "Скачивание Google Chrome..."
-wget -O /tmp/google-chrome.deb $CHROME_URL
+wget -O /tmp/google-chrome.zip $CHROME_URL
 
-echo "Установка Google Chrome..."
-sudo dpkg -i /tmp/google-chrome.deb
-sudo apt --fix-broken install -y  # Для установки зависимостей, если они нужны
+echo "Распаковка и установка Google Chrome..."
+unzip -o /tmp/google-chrome.zip -d /tmp/
+sudo mv /tmp/chrome-linux64 /opt/google-chrome
+sudo ln -sf /opt/google-chrome/chrome /usr/bin/google-chrome
+rm /tmp/google-chrome.zip
 
 # Установка зависимостей через pip
 if [ -f "requirements.txt" ]; then
@@ -64,5 +66,3 @@ google-chrome --version
 chromedriver --version
 
 echo "Установка завершена!"
-
-
