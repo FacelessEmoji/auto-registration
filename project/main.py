@@ -2,6 +2,8 @@ import os
 import platform
 import random
 import threading
+import time
+import logging
 
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
@@ -11,10 +13,9 @@ from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.support.wait import WebDriverWait
 from webdriver_manager.chrome import ChromeDriverManager
 from seleniumwire import webdriver
-import time
-import logging
 from selenium.webdriver.chrome.service import Service as ChromeService
 from concurrent.futures import ThreadPoolExecutor, as_completed
+
 from project.errors import check_nginx_502_error
 from project.exceptions import PhoneNumbersError
 from project.exceptions import AuthenticationError
@@ -143,9 +144,11 @@ def process_account(account, accounts, proxies, csv_path):
             change_account_status(accounts, account, "Error", csv_path)
 
 
-def main(proxies, accounts, csv_path):
+def main(proxies, csv_path):
+    # accounts = load_accounts_from_db() <-- сюда срать
     # TODO: Расширяем и выносим
-    ignored_statuses = ["Finished", "No Available Group", "Authentication Error", "Phone Numbers Error", "No child"]
+    ignored_statuses = ["Finished", "No Available Group", "Authentication Error", "Phone Numbers Error",
+                        "Incorrect Child Name"]
     # Инициализируем словарь блокировок для каждого iin
     iin_locks = {}
 
@@ -161,8 +164,6 @@ def main(proxies, accounts, csv_path):
             # Вызов основной функции обработки аккаунта
             process_account(account, *args)
 
-    ignored_statuses = ["Finished", "No Available Group", "Authentication Error", "Phone Numbers Error",
-                        "Incorrect Child Name"]
     with ThreadPoolExecutor(max_workers=5) as executor:
         futures = []
 

@@ -50,8 +50,3 @@ def update_account_in_list(accounts, updated_account):
         if acc['iin'] == updated_account['iin'] and acc['child_name'] == updated_account['child_name']:
             accounts[i] = updated_account
             break
-
-
-# Форматирование данных аккаунта для вывода
-def format_account_text(account):
-    return f"IIN: {account['iin']}, Password: {account['password']}, Phone: {account['phone_number']}, URL: {account['target_url']}, Status: {account['status']}"
