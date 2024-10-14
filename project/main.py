@@ -32,7 +32,7 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 logging.getLogger('seleniumwire').setLevel(logging.ERROR)
 
 
-# TODO: Разбить на функции, ошибки бросаются корректно
+
 def login_and_continue(driver, account):
     login_url = "https://damubala.kz/sign-in"
     navigate_to_login_page(driver, account, login_url)
@@ -78,28 +78,19 @@ def process_account(account, accounts, proxies, csv_path):
         }
     }
 
-    # Путь к папке с ChromeDriver и Chrome
-    chrome_driver_path = r"C:\Users\Emoji\Desktop\KzChrome\chromedriver-win64\chromedriver.exe"
-    chrome_binary_path = r"C:\Users\Emoji\Desktop\KzChrome\chrome-win64\chrome.exe"
+    chrome_install = ChromeDriverManager().install()
+    folder = os.path.dirname(chrome_install)
 
-    # Настройки для Chrome
+    if platform.system() == "Windows":
+        chromedriver_path = os.path.join(folder, "chromedriver.exe")
+    else:
+        chromedriver_path = os.path.join(folder, "chromedriver")
+
+    service = ChromeService(chromedriver_path)
+
     chrome_options = Options()
-    chrome_options.binary_location = chrome_binary_path  # Указываем путь к chrome.exe
 
-    # Создание сервиса для ChromeDriver
-    service = ChromeService(executable_path=chrome_driver_path)
 
-    # chrome_install = ChromeDriverManager().install()
-    # folder = os.path.dirname(chrome_install)
-    #
-    # if platform.system() == "Windows":
-    #     chromedriver_path = os.path.join(folder, "chromedriver.exe")
-    # else:
-    #     chromedriver_path = os.path.join(folder, "chromedriver")
-    #
-    # service = ChromeService(chromedriver_path)
-    #
-    # chrome_options = Options()
     chrome_options.add_argument('--headless')
     chrome_options.add_argument('--no-sandbox')
     chrome_options.add_argument('--disable-dev-shm-usage')
@@ -111,7 +102,6 @@ def process_account(account, accounts, proxies, csv_path):
         try:
             change_account_status(accounts, account, "Running", csv_path)
             login_and_continue(driver, account)
-            time.sleep(2)
             try:
                 popup_button = driver.find_element("css selector", "button.swal2-confirm.btn-light-danger")
                 if popup_button.is_displayed():
@@ -121,7 +111,6 @@ def process_account(account, accounts, proxies, csv_path):
                     logging.info("Попап не отображается.")
             except NoSuchElementException:
                 pass
-            time.sleep(0.5)
             change_language_to_russian(driver, account)
 
             driver.get(account["target_url"])
@@ -144,38 +133,27 @@ def process_account(account, accounts, proxies, csv_path):
 
 
 def main(proxies, accounts, csv_path):
-    # TODO: Расширяем и выносим
-    ignored_statuses = ["Finished", "No Available Group", "Authentication Error", "Phone Numbers Error", "No child"]
-    # Инициализируем словарь блокировок для каждого iin
-    iin_locks = {}
 
+    iin_locks = {}
     def process_account_with_lock(account, *args):
         iin = account['iin']
-
-        # Создаем блокировку для iin, если её еще нет
         if iin not in iin_locks:
             iin_locks[iin] = threading.Lock()
-
-        # Блокируем выполнение для данного iin
         with iin_locks[iin]:
-            # Вызов основной функции обработки аккаунта
             process_account(account, *args)
 
     ignored_statuses = ["Finished", "No Available Group", "Authentication Error", "Phone Numbers Error",
                         "Incorrect Child Name"]
-    with ThreadPoolExecutor(max_workers=5) as executor:
+    with ThreadPoolExecutor(max_workers=8) as executor:
         futures = []
 
         for account in accounts:
             iin = account['iin']
 
-            # Проверяем, находится ли аккаунт в ignored_statuses
             if account['status'] not in ignored_statuses:
-                # Запускаем обработку аккаунта с блокировкой на iin
                 future = executor.submit(process_account_with_lock, account, accounts, proxies, csv_path)
                 futures.append(future)
 
-        # Обрабатываем завершённые задачи
         for future in as_completed(futures):
             try:
                 future.result()
