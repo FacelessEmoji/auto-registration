@@ -488,6 +488,17 @@ Stacktrace:
 2024-10-13 03:51:44,732 - INFO - Account 890218402656: Language changed to Russian
 2024-10-13 03:51:45,622 - INFO - Account 890218402656: Navigated to https://damubala.kz/parent/sections/14181?classId=62170
 2024-10-13 03:51:50,725 - INFO - Modal content on the site
+2024-10-13 23:27:24,503 - INFO - Account 890218402656: Logging in
+2024-10-13 23:27:35,960 - INFO - Account 890218402656: Modal button clicked
+2024-10-13 23:27:40,562 - WARNING - Retrying (Retry(total=2, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x0000020F589F3500>: Failed to establish a new connection: [WinError 10061] Подключение не установлено, т.к. конечный компьютер отверг запрос на подключение')': /session/3e3e9cf27743631cf1c5da7ee2a608a2/element
+2024-10-13 23:28:41,776 - INFO - Account 890218402656: Logging in
+2024-10-13 23:29:12,866 - INFO - Account 890218402656: Entering IIN
+2024-10-13 23:29:12,929 - INFO - Account 890218402656: Entering password
+2024-10-13 23:29:17,614 - INFO - Account 890218402656: Logged into main menu
+2024-10-13 23:29:49,450 - INFO - Account 890218402656: Language changed to Russian
+2024-10-13 23:29:50,721 - INFO - Account 890218402656: Navigated to https://damubala.kz/parent/sections/14181?classId=62170
+2024-10-13 23:29:55,801 - INFO - Modal content on the site
+2024-10-13 23:29:57,786 - INFO - No options in modal form for account 890218402656, acc registered
 2024-10-13 04:07:12,660 - INFO - ====== WebDriver manager ======
 2024-10-13 04:07:12,751 - INFO - Get LATEST chromedriver version for google-chrome
 2024-10-13 04:07:13,657 - INFO - Get LATEST chromedriver version for google-chrome

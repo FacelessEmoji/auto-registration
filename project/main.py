@@ -78,18 +78,29 @@ def process_account(account, accounts, proxies, csv_path):
         }
     }
 
-    chrome_install = ChromeDriverManager().install()
-    folder = os.path.dirname(chrome_install)
+    # Путь к папке с ChromeDriver и Chrome
+    chrome_driver_path = r"C:\Users\Emoji\Desktop\KzChrome\chromedriver-win64\chromedriver.exe"
+    chrome_binary_path = r"C:\Users\Emoji\Desktop\KzChrome\chrome-win64\chrome.exe"
 
-    if platform.system() == "Windows":
-        chromedriver_path = os.path.join(folder, "chromedriver.exe")
-    else:
-        chromedriver_path = os.path.join(folder, "chromedriver")
-
-    service = ChromeService(chromedriver_path)
-
+    # Настройки для Chrome
     chrome_options = Options()
-    # chrome_options.add_argument('--headless')
+    chrome_options.binary_location = chrome_binary_path  # Указываем путь к chrome.exe
+
+    # Создание сервиса для ChromeDriver
+    service = ChromeService(executable_path=chrome_driver_path)
+
+    # chrome_install = ChromeDriverManager().install()
+    # folder = os.path.dirname(chrome_install)
+    #
+    # if platform.system() == "Windows":
+    #     chromedriver_path = os.path.join(folder, "chromedriver.exe")
+    # else:
+    #     chromedriver_path = os.path.join(folder, "chromedriver")
+    #
+    # service = ChromeService(chromedriver_path)
+    #
+    # chrome_options = Options()
+    chrome_options.add_argument('--headless')
     chrome_options.add_argument('--no-sandbox')
     chrome_options.add_argument('--disable-dev-shm-usage')
     chrome_options.add_argument('--ignore-certificate-errors')
