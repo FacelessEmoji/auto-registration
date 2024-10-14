@@ -238,34 +238,47 @@ def fill_modal_form(driver, account, accounts, csv_path):
             first_option = wait.until(EC.element_to_be_clickable((By.XPATH, first_option_xpath)))
             first_option.click()
 
-            time.sleep(20)
-            #
-            # second_element_xpath = "//div[@class='vs__selected-options']/input[@placeholder='Выберите группу' and not(@disabled)]"
-            # second_element = wait.until(EC.element_to_be_clickable((By.XPATH, second_element_xpath)))
-            # second_element.click()
-            #
-            # try:
-            #     wait = WebDriverWait(driver, 0.3)
-            #     element = wait.until(EC.presence_of_element_located((By.CLASS_NAME, 'vs__no-options')))
-            #     if element:
-            #         change_account_status(accounts, account, "Finished", csv_path)
-            #         logging.info(f"No options in modal form for account {account['iin']}, acc registered")
-            #         return
-            # except:
-            #     None
-            #
-            # second_first_option_xpath = f"//ul[@id='vs3__listbox' and contains(@class, 'vs__dropdown-menu')]/li[@role='option'][{selected_group}]"
-            # second_first_option = wait.until(EC.element_to_be_clickable((By.XPATH, second_first_option_xpath)))
-            # second_first_option.click()
+            second_element_xpath = "//div[@class='vs__selected-options']/input[@placeholder='Выберите группу' and not(@disabled)]"
+            second_element = wait.until(EC.element_to_be_clickable((By.XPATH, second_element_xpath)))
+            second_element.click()
+
+            try:
+                wait = WebDriverWait(driver, 0.3)
+                element = wait.until(EC.presence_of_element_located((By.CLASS_NAME, 'vs__no-options')))
+                if element:
+                    change_account_status(accounts, account, "Finished", csv_path)
+                    logging.info(f"No options in modal form for account {account['iin']}, acc registered")
+                    return
+            except:
+                pass
+
+            second_first_option_xpath = f"//ul[@id='vs3__listbox' and contains(@class, 'vs__dropdown-menu')]/li[@role='option'][{selected_group}]"
+            second_first_option = wait.until(EC.element_to_be_clickable((By.XPATH, second_first_option_xpath)))
+            second_first_option.click()
 
             # checkbox_xpath = "//input[@type='checkbox' and @id='checkbox']"
             # checkbox = wait.until(EC.element_to_be_clickable((By.XPATH, checkbox_xpath)))
             # checkbox.click()
 
-            # submit_button_xpath = "//button[contains(text(), 'Записаться')]"
-            # submit_button = wait.until(EC.element_to_be_clickable((By.XPATH, submit_button_xpath)))
-            #
-            # submit_button.click()
+            submit_button_xpath = "//button[contains(text(), 'Записаться')]"
+            submit_button = wait.until(EC.element_to_be_clickable((By.XPATH, submit_button_xpath)))
+            submit_button.click()
+
+            try:
+                success_popup = WebDriverWait(driver, 10).until(
+                    EC.visibility_of_element_located((By.XPATH,
+                                                      "//div[contains(@class, 'swal2-popup') and contains(@class, 'swal2-icon-success') and contains(@class, 'swal2-show')]"))
+                )
+                # Находим элемент, содержащий текст успешного сообщения
+                success_message = success_popup.find_element(By.XPATH, "//div[@id='swal2-content']/h2")
+
+                if "Успешно!" in success_message.text:
+                    change_account_status(accounts, account, "Finished", csv_path)
+                    logging.info(f"Successfully enrolled account {account['iin']} in group.")
+
+            except Exception as e:
+                print(f"Не удалось найти окно с успешным сообщением: {e}")
+
             # try:
             #     element = WebDriverWait(driver, 1).until(
             #         EC.visibility_of_element_located((By.ID, "swal2-content"))
@@ -274,14 +287,12 @@ def fill_modal_form(driver, account, accounts, csv_path):
             #         logging.error(f"Failed to enroll account {account['iin']} in group: No available spots.")
             #         change_account_status(accounts, account, "No Spots", csv_path)
             #         raise NoAvailableGroupsError("No available spots in the group.")
-            #     # TODO: Проверить форму при успешной реги и поправить эту срань
             # except NoAvailableGroupsError as e:
             #     raise Exception(e)
             # except Exception:
             #     None
             #
-            # change_account_status(accounts, account, "Finished", csv_path)
-            # logging.info(f"Successfully enrolled account {account['iin']} in group.")
+
 
         except Exception as e:
             logging.error(f"Error filling form in account {account['iin']}: {e}")

@@ -47,7 +47,7 @@ def change_account_status(accounts, account, new_status, txt_file_path):
 # Функция для обновления аккаунта в списке
 def update_account_in_list(accounts, updated_account):
     for i, acc in enumerate(accounts):
-        if acc['iin'] == updated_account['iin']:
+        if acc['iin'] == updated_account['iin'] and acc['child_name'] == updated_account['child_name']:
             accounts[i] = updated_account
             break
 
