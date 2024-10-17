@@ -1,12 +1,13 @@
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.wait import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
 import time
 import logging
 
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.wait import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 from db.queries import change_account_status
 from project.annotations import with_modal_check
 from project.errors import check_nginx_502_error
+from project.exceptions import AuthenticationError, PhoneNumbersError
 
 
 @with_modal_check
@@ -15,6 +16,7 @@ def navigate_to_login_page(driver, login_url):
     if not check_nginx_502_error(driver):
         logging.error("Failed to resolve 502 error after retries, exiting...")
         return
+    # Зачем?
     time.sleep(3)
 
 
@@ -43,6 +45,35 @@ def click_login_button(driver):
     login_button = wait.until(EC.element_to_be_clickable((By.ID, "kt_sign_in_submit")))
     login_button.click()
     time.sleep(4)
+
+
+@with_modal_check
+def enter_phone_number(driver, account):
+    wait_var = WebDriverWait(driver, 4)
+    try:
+        wait_var.until(EC.presence_of_element_located((By.XPATH, "//input[@class='otp-input one']"))).send_keys(
+            account['phone_number'])
+    except:
+        raise AuthenticationError(f"Ошибка аутентификации для аккаунта {account['iin']}: Неверный номер телефона.")
+
+
+@with_modal_check
+def click_popup_button(driver, account):
+    wait_var = WebDriverWait(driver, 2)
+    try:
+        success_popup = wait_var.until(
+            EC.presence_of_element_located((By.CSS_SELECTOR, '.swal2-popup.swal2-icon-success')))
+        if success_popup.is_displayed():
+            continue_button = success_popup.find_element(By.CSS_SELECTOR, '.swal2-confirm')
+            wait_var.until(EC.element_to_be_clickable(continue_button))
+            continue_button.click()
+    except:
+        error_icon = driver.find_element(By.CLASS_NAME, "swal2-icon-error")
+        if error_icon.is_displayed():
+            raise PhoneNumbersError(
+                f"Ошибка аутентификации для аккаунта {account['iin']}: Неверные последние 4 цифры номера телефона!")
+        else:
+            raise Exception("Unexpected login_and_continue Error")
 
 
 @with_modal_check

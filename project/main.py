@@ -18,12 +18,10 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 
 from db.queries import get_account_by_id, load_accounts_from_db, change_account_status
 from project.errors import check_nginx_502_error
-from project.exceptions import PhoneNumbersError
-from project.exceptions import AuthenticationError
+from project.exceptions import PhoneNumbersError, AuthenticationError
 from project.parsing import navigate_to_login_page, click_iin_bin_link, enter_iin, enter_password, \
     click_login_button, \
-    change_language_to_russian, click_register_button
-
+    change_language_to_russian, click_register_button, enter_phone_number, click_popup_button
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s', handlers=[
     logging.FileHandler("./log.txt", mode='a', encoding='utf-8'),
@@ -34,7 +32,6 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 logging.getLogger('seleniumwire').setLevel(logging.ERROR)
 
 
-# TODO: Разбить на функции, ошибки бросаются корректно
 def login_and_continue(driver, account):
     login_url = "https://damubala.kz/sign-in"
     navigate_to_login_page(driver, login_url)
@@ -42,34 +39,43 @@ def login_and_continue(driver, account):
     enter_iin(driver, account)
     enter_password(driver, account)
     click_login_button(driver)
-
-    wait = WebDriverWait(driver, 2)
-    try:
-        wait.until(EC.presence_of_element_located((By.XPATH, "//input[@class='otp-input one']"))).send_keys(
-            account['phone_number'])
-    except:
-        raise AuthenticationError(f"Ошибка аутентификации для аккаунта {account['iin']}: Неверный номер телефона.")
-
-    try:
-        success_popup = wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, '.swal2-popup.swal2-icon-success')))
-        if success_popup.is_displayed():
-            continue_button = success_popup.find_element(By.CSS_SELECTOR, '.swal2-confirm')
-            wait.until(EC.element_to_be_clickable(continue_button))
-            continue_button.click()
-    except:
-        error_icon = driver.find_element(By.CLASS_NAME, "swal2-icon-error")
-        if error_icon.is_displayed():
-            raise PhoneNumbersError(
-                f"Ошибка аутентификации для аккаунта {account['iin']}: Неверные последние 4 цифры номера телефона!")
-        else:
-            raise Exception("Unexpected login_and_continue Error")
-
+    enter_phone_number(driver, account)
+    click_popup_button(driver, account)
     logging.info(f"Account {account['iin']}: Logged into main menu")
 
 
 # TODO: Разбить на функции, ошибки ловятся
 def process_account(account, proxies, session):
+    # -----------------------------------------Config-------------------------------------------------------------------
 
+    # TODO: А как будет на линуксе?...
+    # chrome_driver_path = r"C:\Users\Raven\Desktop\auto-registration\ch\chromedriver-win64\chromedriver.exe"
+    # chrome_binary_path = r"C:\Users\Raven\Desktop\auto-registration\ch\chrome-win64\chrome.exe"
+    chrome_driver_path = r"C:\Users\Emoji\Desktop\KzChrome\chromedriver-win64\chromedriver.exe"
+    chrome_binary_path = r"C:\Users\Emoji\Desktop\KzChrome\chrome-win64\chrome.exe"
+
+    chrome_options = Options()
+    chrome_options.binary_location = chrome_binary_path
+    service = ChromeService(executable_path=chrome_driver_path)
+
+    # chrome_install = ChromeDriverManager().install()
+    #     # folder = os.path.dirname(chrome_install)
+    #     # if platform.system() == "Windows":
+    #     #     chromedriver_path = os.path.join(folder, "chromedriver.exe")
+    #     # else:
+    #     #     chromedriver_path = os.path.join(folder, "chromedriver")
+    #     # service = ChromeService(chromedriver_path)
+    #     # chrome_options = Options()
+
+    # chrome_options.add_argument('--headless')
+    chrome_options.add_argument('--no-sandbox')
+    chrome_options.add_argument('--disable-dev-shm-usage')
+    chrome_options.add_argument('--ignore-certificate-errors')
+    chrome_options.add_argument('--ignore-ssl-errors')
+
+    # __________________________________________________________________________________________________________________
+
+    # --------------------------------------------Proxy Config----------------------------------------------------------
     proxy = random.choice(proxies)
     ip, port, user, password = proxy.split(':')
 
@@ -80,28 +86,7 @@ def process_account(account, proxies, session):
             'no_proxy': 'localhost,127.0.0.1'
         }
     }
-
-    chrome_driver_path = r"C:\Users\Raven\Desktop\auto-registration\ch\chromedriver-win64\chromedriver.exe"
-    chrome_binary_path = r"C:\Users\Raven\Desktop\auto-registration\ch\chrome-win64\chrome.exe"
-
-    chrome_options = Options()
-    chrome_options.binary_location = chrome_binary_path
-    service = ChromeService(executable_path=chrome_driver_path)
-
-    # chrome_install = ChromeDriverManager().install()
-    # folder = os.path.dirname(chrome_install)
-    # if platform.system() == "Windows":
-    #     chromedriver_path = os.path.join(folder, "chromedriver.exe")
-    # else:
-    #     chromedriver_path = os.path.join(folder, "chromedriver")
-    # service = ChromeService(chromedriver_path)
-    # chrome_options = Options()
-
-    # chrome_options.add_argument('--headless')
-    chrome_options.add_argument('--no-sandbox')
-    chrome_options.add_argument('--disable-dev-shm-usage')
-    chrome_options.add_argument('--ignore-certificate-errors')
-    chrome_options.add_argument('--ignore-ssl-errors')
+    # __________________________________________________________________________________________________________________
 
     # with webdriver.Chrome(seleniumwire_options=proxy_options, service=service, options=chrome_options) as driver:
     with webdriver.Chrome(service=service, options=chrome_options) as driver:
@@ -140,7 +125,6 @@ def process_account(account, proxies, session):
 
 
 def main(proxies):
-
     engine = create_engine('sqlite:///db/accounts.db')
     Session = scoped_session(sessionmaker(bind=engine))
     session = Session()
@@ -156,6 +140,7 @@ def main(proxies):
     ignored_statuses = ["Finished", "No Available Group", "Authentication Error", "Phone Numbers Error",
                         "Incorrect Child Name"]
     iin_locks = {}
+
     def process_account_with_lock(account, *args):
         iin = account['iin']
 
