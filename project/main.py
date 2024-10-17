@@ -1,5 +1,3 @@
-import os
-import platform
 import random
 import threading
 import time
@@ -12,20 +10,20 @@ from selenium.common import NoSuchElementException
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.support.wait import WebDriverWait
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import sessionmaker, scoped_session
 from webdriver_manager.chrome import ChromeDriverManager
 from seleniumwire import webdriver
 from selenium.webdriver.chrome.service import Service as ChromeService
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
-from db.queries import get_account_by_id, load_accounts_from_db
+from db.queries import get_account_by_id, load_accounts_from_db, change_account_status
 from project.errors import check_nginx_502_error
 from project.exceptions import PhoneNumbersError
 from project.exceptions import AuthenticationError
 from project.parsing import navigate_to_login_page, click_iin_bin_link, enter_iin, enter_password, \
     click_login_button, \
     change_language_to_russian, click_register_button
-from project.functions import change_account_status
+
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s', handlers=[
     logging.FileHandler("./log.txt", mode='a', encoding='utf-8'),
@@ -39,11 +37,11 @@ logging.getLogger('seleniumwire').setLevel(logging.ERROR)
 # TODO: Разбить на функции, ошибки бросаются корректно
 def login_and_continue(driver, account):
     login_url = "https://damubala.kz/sign-in"
-    navigate_to_login_page(driver, account, login_url)
-    click_iin_bin_link(driver, account)
+    navigate_to_login_page(driver, login_url)
+    click_iin_bin_link(driver)
     enter_iin(driver, account)
     enter_password(driver, account)
-    click_login_button(driver, account)
+    click_login_button(driver)
 
     wait = WebDriverWait(driver, 2)
     try:
@@ -70,7 +68,8 @@ def login_and_continue(driver, account):
 
 
 # TODO: Разбить на функции, ошибки ловятся
-def process_account(account, accounts, proxies, csv_path):
+def process_account(account, proxies, session):
+
     proxy = random.choice(proxies)
     ip, port, user, password = proxy.split(':')
 
@@ -78,33 +77,27 @@ def process_account(account, accounts, proxies, csv_path):
         'proxy': {
             'http': f'http://{user}:{password}@{ip}:{port}',
             'https': f'https://{user}:{password}@{ip}:{port}',
-            'no_proxy': 'localhost,127.0.0.1'  # Список адресов, для которых прокси не используется
+            'no_proxy': 'localhost,127.0.0.1'
         }
     }
 
-    # Путь к папке с ChromeDriver и Chrome
-    chrome_driver_path = r"C:\Users\Emoji\Desktop\KzChrome\chromedriver-win64\chromedriver.exe"
-    chrome_binary_path = r"C:\Users\Emoji\Desktop\KzChrome\chrome-win64\chrome.exe"
+    chrome_driver_path = r"C:\Users\Raven\Desktop\auto-registration\ch\chromedriver-win64\chromedriver.exe"
+    chrome_binary_path = r"C:\Users\Raven\Desktop\auto-registration\ch\chrome-win64\chrome.exe"
 
-    # Настройки для Chrome
     chrome_options = Options()
-    chrome_options.binary_location = chrome_binary_path  # Указываем путь к chrome.exe
-
-    # Создание сервиса для ChromeDriver
+    chrome_options.binary_location = chrome_binary_path
     service = ChromeService(executable_path=chrome_driver_path)
 
     # chrome_install = ChromeDriverManager().install()
     # folder = os.path.dirname(chrome_install)
-    #
     # if platform.system() == "Windows":
     #     chromedriver_path = os.path.join(folder, "chromedriver.exe")
     # else:
     #     chromedriver_path = os.path.join(folder, "chromedriver")
-    #
     # service = ChromeService(chromedriver_path)
-    #
     # chrome_options = Options()
-    chrome_options.add_argument('--headless')
+
+    # chrome_options.add_argument('--headless')
     chrome_options.add_argument('--no-sandbox')
     chrome_options.add_argument('--disable-dev-shm-usage')
     chrome_options.add_argument('--ignore-certificate-errors')
@@ -113,69 +106,63 @@ def process_account(account, accounts, proxies, csv_path):
     # with webdriver.Chrome(seleniumwire_options=proxy_options, service=service, options=chrome_options) as driver:
     with webdriver.Chrome(service=service, options=chrome_options) as driver:
         try:
-            change_account_status(accounts, account, "Running", csv_path)
+
+            change_account_status(session, account['id'], "Running")
             login_and_continue(driver, account)
+
             time.sleep(2)
             try:
                 popup_button = driver.find_element("css selector", "button.swal2-confirm.btn-light-danger")
                 if popup_button.is_displayed():
                     popup_button.click()
                     logging.info("Попап закрыт.")
-                else:
-                    logging.info("Попап не отображается.")
             except NoSuchElementException:
                 pass
-            time.sleep(0.5)
             change_language_to_russian(driver, account)
-
             driver.get(account["target_url"])
             if not check_nginx_502_error(driver):
                 logging.error("Failed to resolve 502 error after retries, exiting...")
                 return
             logging.info(f"Account {account['iin']}: Navigated to {account['target_url']}")
-            time.sleep(5)
-            click_register_button(driver, account, accounts, csv_path)
+            click_register_button(driver, account, session)
         except AuthenticationError as e:
-            change_account_status(accounts, account, "Authentication Error", csv_path)
+            change_account_status(session, account['id'], "Authentication Error")
             logging.error(f"{e}")
         except PhoneNumbersError as e:
-            change_account_status(accounts, account, "Phone Numbers Error", csv_path)
+            change_account_status(session, account['id'], "Phone Numbers Error")
             logging.error(f"{e}")
         except Exception as e:
             error_name = type(e).__name__
             logging.error(f"Error {error_name} processing account {account['iin']}: {e}")
-            change_account_status(accounts, account, "Error", csv_path)
+            change_account_status(session, account['id'], "Error")
+        finally:
+            session.close()
 
 
-def main(proxies, csv_path):
-    # Всегда работаем через сессию и всегда в новом месте прокидываем путь к бд
-    db_path = 'sqlite:///../db/accounts.db'
-    session = sessionmaker(bind=create_engine(f'sqlite:///{db_path}'))()
+def main(proxies):
+
+    engine = create_engine('sqlite:///db/accounts.db')
+    Session = scoped_session(sessionmaker(bind=engine))
+    session = Session()
+
     try:
-        accounts = load_accounts_from_db(session)  # Загружаем аккаунты, передавая сессию
-        for account in accounts:
-            print(account)
-        # Пример
-        print(get_account_by_id(session, 1).child_name)
+        accounts = load_accounts_from_db(session)
+    except Exception as e:
+        print(e)
+        return
     finally:
         session.close()
 
-    # TODO: Расширяем и выносим
     ignored_statuses = ["Finished", "No Available Group", "Authentication Error", "Phone Numbers Error",
                         "Incorrect Child Name"]
-    # Инициализируем словарь блокировок для каждого iin
     iin_locks = {}
-
     def process_account_with_lock(account, *args):
         iin = account['iin']
 
-        # Создаем блокировку для iin, если её еще нет
         if iin not in iin_locks:
             iin_locks[iin] = threading.Lock()
 
-        # Блокируем выполнение для данного iin
         with iin_locks[iin]:
-            # Вызов основной функции обработки аккаунта
             process_account(account, *args)
 
     with ThreadPoolExecutor(max_workers=5) as executor:
@@ -184,13 +171,11 @@ def main(proxies, csv_path):
         for account in accounts:
             iin = account['iin']
 
-            # Проверяем, находится ли аккаунт в ignored_statuses
             if account['status'] not in ignored_statuses:
-                # Запускаем обработку аккаунта с блокировкой на iin
-                future = executor.submit(process_account_with_lock, account, accounts, proxies, csv_path)
+                session = Session()
+                future = executor.submit(process_account_with_lock, account, proxies, session)
                 futures.append(future)
 
-        # Обрабатываем завершённые задачи
         for future in as_completed(futures):
             try:
                 future.result()

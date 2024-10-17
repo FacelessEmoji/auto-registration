@@ -1,20 +1,16 @@
-import random
-
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 import time
 import logging
 
+from db.queries import change_account_status
 from project.annotations import with_modal_check
 from project.errors import check_nginx_502_error
-from project.exceptions import NoAvailableGroupsError
-from project.functions import change_account_status
 
 
 @with_modal_check
-def navigate_to_login_page(driver, account, login_url):
-    logging.info(f"Account {account['iin']}: Logging in")
+def navigate_to_login_page(driver, login_url):
     driver.get(login_url)
     if not check_nginx_502_error(driver):
         logging.error("Failed to resolve 502 error after retries, exiting...")
@@ -23,7 +19,7 @@ def navigate_to_login_page(driver, account, login_url):
 
 
 @with_modal_check
-def click_iin_bin_link(driver, account):
+def click_iin_bin_link(driver):
     wait = WebDriverWait(driver, 10)
     link_element = wait.until(EC.element_to_be_clickable((By.LINK_TEXT, "ИИН/БИН")))
     link_element.click()
@@ -31,20 +27,18 @@ def click_iin_bin_link(driver, account):
 
 @with_modal_check
 def enter_iin(driver, account):
-    logging.info(f"Account {account['iin']}: Entering IIN")
     iin_field = driver.find_element(By.NAME, "iin")
     iin_field.send_keys(account["iin"])
 
 
 @with_modal_check
 def enter_password(driver, account):
-    logging.info(f"Account {account['iin']}: Entering password")
     password_field = driver.find_element(By.NAME, "password")
     password_field.send_keys(account["password"])
 
 
 @with_modal_check
-def click_login_button(driver, account):
+def click_login_button(driver):
     wait = WebDriverWait(driver, 10)
     login_button = wait.until(EC.element_to_be_clickable((By.ID, "kt_sign_in_submit")))
     login_button.click()
@@ -52,7 +46,7 @@ def click_login_button(driver, account):
 
 
 @with_modal_check
-def click_continue_button(driver, account):
+def click_continue_button(driver):
     wait = WebDriverWait(driver, 10)
     continue_button = wait.until(EC.element_to_be_clickable(
         (By.XPATH, "//button[contains(@class, 'swal2-confirm') and contains(text(), 'Продолжить')]")))
@@ -82,7 +76,6 @@ def change_language_to_russian(driver, account):
         logging.error(f"Account {account['iin']}: Error changing language to Russian - {e}")
 
 
-# Поправил вроде как
 def click_each_tab_and_check_group(driver):
     indices_with_mismatch = []
 
@@ -144,7 +137,7 @@ def click_each_tab_and_check_group(driver):
 
 
 @with_modal_check
-def click_register_button(driver, account, accounts, csv_path):
+def click_register_button(driver, account, session):
     attempts = 0
     if not check_nginx_502_error(driver):
         logging.error("Failed to resolve 502 error after retries, exiting...")
@@ -172,9 +165,8 @@ def click_register_button(driver, account, accounts, csv_path):
                 raise Exception()
             else:
                 logging.info(f"Modal content on the site")
-                fill_modal_form(driver, account, accounts, csv_path)
+                fill_modal_form(driver, account, session)
                 return
-
 
         except Exception as e:
             attempts += 1
@@ -189,11 +181,11 @@ def click_register_button(driver, account, accounts, csv_path):
     raise Exception("Reached maximum number of attempts. Exiting...")
 
 
-def fill_modal_form(driver, account, accounts, csv_path):
+def fill_modal_form(driver, account, session):
     selected_group = click_each_tab_and_check_group(driver)
 
     if not selected_group:
-        change_account_status(accounts, account, "No Available Group", csv_path)
+        change_account_status(session, account['id'], "No Available Group")
         logging.error(f"Failed to enroll account {account['iin']} in group: No available spots.")
         return
 
@@ -202,13 +194,14 @@ def fill_modal_form(driver, account, accounts, csv_path):
             wait = WebDriverWait(driver, 10)
             first_element_xpath = "//div[@class='vs__selected-options']/input[@placeholder='Выберите ребенка']"
             first_element = wait.until(EC.element_to_be_clickable((By.XPATH, first_element_xpath)))
+            time.sleep(1.5)
             first_element.click()
 
             try:
                 wait = WebDriverWait(driver, 0.3)
                 element = wait.until(EC.presence_of_element_located((By.CLASS_NAME, 'vs__no-options')))
                 if element:
-                    change_account_status(accounts, account, "Finished", csv_path)
+                    change_account_status(session, account['id'], "Finished")
                     logging.info(f"No options in modal form for account {account['iin']}, acc registered")
                     return
             except:
@@ -225,13 +218,13 @@ def fill_modal_form(driver, account, accounts, csv_path):
                     child_name = i
                     break
 
-            # Если не найдено нужного значения
             if child_name is None:
-                change_account_status(accounts, account, "Incorrect Child Name", csv_path)
+                change_account_status(session, account['id'], "Incorrect Child Name")
                 logging.error(f"Failed to enroll account {account['iin']} in group: No child name matches.")
                 return
 
-            # Кликаем по найденному элементу
+            print(child_name)
+
             first_option_xpath = f"//ul[@id='vs2__listbox' and contains(@class, 'vs__dropdown-menu')]/li[@role='option'][{child_name}]"
             first_option = wait.until(EC.element_to_be_clickable((By.XPATH, first_option_xpath)))
             first_option.click()
@@ -244,7 +237,7 @@ def fill_modal_form(driver, account, accounts, csv_path):
                 wait = WebDriverWait(driver, 0.3)
                 element = wait.until(EC.presence_of_element_located((By.CLASS_NAME, 'vs__no-options')))
                 if element:
-                    change_account_status(accounts, account, "Finished", csv_path)
+                    change_account_status(session, account['id'], "Finished")
                     logging.info(f"No options in modal form for account {account['iin']}, acc registered")
                     return
             except:
@@ -260,26 +253,22 @@ def fill_modal_form(driver, account, accounts, csv_path):
 
             submit_button_xpath = "//button[contains(text(), 'Записаться')]"
             submit_button = wait.until(EC.element_to_be_clickable((By.XPATH, submit_button_xpath)))
-
-            # submit_button.click()
-            return
+            submit_button.click()
 
             try:
                 success_popup = WebDriverWait(driver, 10).until(
                     EC.visibility_of_element_located((By.XPATH,
                                                       "//div[contains(@class, 'swal2-popup') and contains(@class, 'swal2-icon-success') and contains(@class, 'swal2-show')]"))
                 )
-                # Находим элемент, содержащий текст успешного сообщения
                 success_message = success_popup.find_element(By.XPATH, "//div[@id='swal2-content']/h2")
 
                 if "Успешно!" in success_message.text:
-                    change_account_status(accounts, account, "Finished", csv_path)
+                    change_account_status(session, account['id'], "Finished")
                     logging.info(f"Successfully enrolled account {account['iin']} in group.")
 
             except Exception as e:
-                change_account_status(accounts, account, "No av spots in current group", csv_path)
+                change_account_status(session, account['id'], "No av spots in current group")
                 logging.info(f"No av spots in current group account {account['iin']}, {account['chlid_name']}.")
-
 
 
         except Exception as e:

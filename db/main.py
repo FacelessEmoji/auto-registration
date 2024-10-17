@@ -1,8 +1,9 @@
 import os
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from .models import Base, Account
-from .queries import change_account_status, get_account_by_id  # Импортируем функцию из queries.py
+
+from db.models import Base, Account
+
 
 engine = create_engine('sqlite:///accounts.db')
 
@@ -69,5 +70,5 @@ def load_accounts_from_txt_to_db(file_path):
 # Запускаем тест для изменения статуса аккаунтов
 if __name__ == "__main__":
     create_database()
-    # load_accounts_from_txt_to_db("accounts.txt")
+    load_accounts_from_txt_to_db("accounts.txt")
     # test_change_account_status()
