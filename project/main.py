@@ -1,3 +1,4 @@
+import os
 import random
 import threading
 import time
@@ -47,27 +48,23 @@ def login_and_continue(driver, account):
 # TODO: Разбить на функции, ошибки ловятся
 def process_account(account, proxies, session):
     # -----------------------------------------Config-------------------------------------------------------------------
-
-    # TODO: А как будет на линуксе?...
-    # chrome_driver_path = r"C:\Users\Raven\Desktop\auto-registration\ch\chromedriver-win64\chromedriver.exe"
-    # chrome_binary_path = r"C:\Users\Raven\Desktop\auto-registration\ch\chrome-win64\chrome.exe"
-    chrome_driver_path = r"C:\Users\Emoji\Desktop\KzChrome\chromedriver-win64\chromedriver.exe"
-    chrome_binary_path = r"C:\Users\Emoji\Desktop\KzChrome\chrome-win64\chrome.exe"
+    # Проверяем, какая операционная система используется
+    if os.name == 'nt':  # Если это Windows
+        # Глебы
+        # chrome_driver_path = r"C:\Users\Raven\Desktop\auto-registration\ch\chromedriver-win64\chromedriver.exe"
+        # chrome_binary_path = r"C:\Users\Raven\Desktop\auto-registration\ch\chrome-win64\chrome.exe"
+        # Иваны
+        chrome_driver_path = r"C:\Users\Emoji\Desktop\KzChrome\chromedriver-win64\chromedriver.exe"
+        chrome_binary_path = r"C:\Users\Emoji\Desktop\KzChrome\chrome-win64\chrome.exe"
+    else:  # Если это Linux
+        chrome_driver_path = "/usr/bin/chromedriver"
+        chrome_binary_path = "/opt/google-chrome/chrome"
 
     chrome_options = Options()
     chrome_options.binary_location = chrome_binary_path
     service = ChromeService(executable_path=chrome_driver_path)
 
-    # chrome_install = ChromeDriverManager().install()
-    #     # folder = os.path.dirname(chrome_install)
-    #     # if platform.system() == "Windows":
-    #     #     chromedriver_path = os.path.join(folder, "chromedriver.exe")
-    #     # else:
-    #     #     chromedriver_path = os.path.join(folder, "chromedriver")
-    #     # service = ChromeService(chromedriver_path)
-    #     # chrome_options = Options()
-
-    # chrome_options.add_argument('--headless')
+    chrome_options.add_argument('--headless')
     chrome_options.add_argument('--no-sandbox')
     chrome_options.add_argument('--disable-dev-shm-usage')
     chrome_options.add_argument('--ignore-certificate-errors')
