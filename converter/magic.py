@@ -46,6 +46,32 @@ def process_raw_csv(input_file, correct_file, incorrect_file):
 
     print("Обработка завершена.")
 
+    # Дополнительный шаг: группировка по ИИН
+    group_accounts_by_iin(correct_file)
+
+
+def group_accounts_by_iin(correct_file):
+    # Чтение строк из correct_file (accounts.txt)
+    with open(correct_file, 'r', encoding='utf-8') as infile:
+        lines = [line.strip() for line in infile if line.strip()]
+
+    # Группировка строк по ИИН
+    iin_groups = {}
+    for line in lines:
+        parts = line.split(';')
+        iin = parts[0]
+        if iin not in iin_groups:
+            iin_groups[iin] = []
+        iin_groups[iin].append(line)
+
+    # Записываем сгруппированные строки в тот же файл (accounts.txt)
+    with open(correct_file, 'w', encoding='utf-8') as outfile:
+        for iin, group in iin_groups.items():
+            for line in group:
+                outfile.write(line + '\n')
+
+    print("Группировка строк по ИИН завершена.")
+
 
 def rearrange_accounts(input_file, output_file):
     # Чтение строк из файла accounts.txt
@@ -97,5 +123,5 @@ def rearrange_accounts(input_file, output_file):
 
 
 process_raw_csv('data/raw.csv', 'data/accounts.txt', 'data/incorrect_accounts.txt')
-time.sleep(1)
-rearrange_accounts('data/accounts.txt', 'data/rearranged_accounts.txt')
+# time.sleep(1)
+# rearrange_accounts('data/accounts.txt', 'data/rearranged_accounts.txt')

@@ -8,3 +8,11 @@ class PhoneNumbersError(Exception):
 
 class NoAvailableGroupsError(Exception):
     pass
+
+
+class IncorrectGroupLink(Exception):
+    pass
+
+
+class LanguageChangeError(Exception):
+    pass
