@@ -299,7 +299,7 @@ def fill_modal_form(driver, account, session):
 
             except Exception as e:
                 change_account_status(session, account['id'], "No av spots in current group")
-                logging.info(f"No av spots in current group account {account['iin']}, {account['chlid_name']}.")
+                logging.info(f"No av spots in current group account {account['iin']}, {account['child_name']}.")
 
 
         except Exception as e:

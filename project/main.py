@@ -120,8 +120,7 @@ def process_account(account, proxies, session):
             error_name = type(e).__name__
             logging.error(f"Error {error_name} processing account {account['iin']}: {e}")
             change_account_status(session, account['id'], "Error")
-        finally:
-            Session.remove()
+
 
 
 def main(proxies):
@@ -154,7 +153,6 @@ def main(proxies):
             iin = account['iin']
 
             if account['status'] not in ignored_statuses:
-                session = Session()
                 future = executor.submit(process_account_with_lock, account, proxies, session)
                 futures.append(future)
 
