@@ -32,6 +32,10 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 # Отключаем все логи уровня INFO и ниже
 logging.getLogger('seleniumwire').setLevel(logging.ERROR)
 
+engine = create_engine('sqlite:///db/accounts.db')
+Session = scoped_session(sessionmaker(bind=engine))
+
+
 
 def login_and_continue(driver, account):
     login_url = "https://damubala.kz/sign-in"
@@ -45,17 +49,16 @@ def login_and_continue(driver, account):
     logging.info(f"Account {account['iin']}: Logged into main menu")
 
 
-# TODO: Разбить на функции, ошибки ловятся
 def process_account(account, proxies, session):
     # -----------------------------------------Config-------------------------------------------------------------------
     # Проверяем, какая операционная система используется
     if os.name == 'nt':  # Если это Windows
         # Глебы
-        # chrome_driver_path = r"C:\Users\Raven\Desktop\auto-registration\ch\chromedriver-win64\chromedriver.exe"
-        # chrome_binary_path = r"C:\Users\Raven\Desktop\auto-registration\ch\chrome-win64\chrome.exe"
+        chrome_driver_path = r"C:\Users\Raven\Desktop\auto-registration\ch\chromedriver-win64\chromedriver.exe"
+        chrome_binary_path = r"C:\Users\Raven\Desktop\auto-registration\ch\chrome-win64\chrome.exe"
         # Иваны
-        chrome_driver_path = r"C:\Users\Emoji\Desktop\KzChrome\chromedriver-win64\chromedriver.exe"
-        chrome_binary_path = r"C:\Users\Emoji\Desktop\KzChrome\chrome-win64\chrome.exe"
+        # chrome_driver_path = r"C:\Users\Emoji\Desktop\KzChrome\chromedriver-win64\chromedriver.exe"
+        # chrome_binary_path = r"C:\Users\Emoji\Desktop\KzChrome\chrome-win64\chrome.exe"
     else:  # Если это Linux
         chrome_driver_path = "/usr/bin/chromedriver"
         chrome_binary_path = "/opt/google-chrome/chrome"
@@ -118,14 +121,11 @@ def process_account(account, proxies, session):
             logging.error(f"Error {error_name} processing account {account['iin']}: {e}")
             change_account_status(session, account['id'], "Error")
         finally:
-            session.close()
+            Session.remove()
 
 
 def main(proxies):
-    engine = create_engine('sqlite:///db/accounts.db')
-    Session = scoped_session(sessionmaker(bind=engine))
     session = Session()
-
     try:
         accounts = load_accounts_from_db(session)
     except Exception as e:
@@ -147,7 +147,7 @@ def main(proxies):
         with iin_locks[iin]:
             process_account(account, *args)
 
-    with ThreadPoolExecutor(max_workers=5) as executor:
+    with ThreadPoolExecutor(max_workers=8) as executor:
         futures = []
 
         for account in accounts:
