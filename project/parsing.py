@@ -109,14 +109,21 @@ def change_language_to_russian(driver, account):
 
 
 def check_page_unavailable(driver, account):
+    time.sleep(3)
+
+    current_url = driver.current_url
+    if "https://damubala.kz/parent/children" in current_url:
+        raise IncorrectGroupLink(f"Account {account['iin']}: Incorrect group link for child. Supplier in link.")
+
     wait_var = WebDriverWait(driver, 3)
     try:
         wait_var.until(EC.presence_of_element_located(
             (By.XPATH, "//h1[contains(text(), 'Страница недоступна в данный момент')]")
         ))
-        raise IncorrectGroupLink(f"Account {account['iin']}: Incorrect group link for child. ")
+        raise IncorrectGroupLink(f"Account {account['iin']}: Incorrect group link for child. Section is unavailable.")
     except TimeoutException:
         pass
+
 
 
 def click_each_tab_and_check_group(driver):
