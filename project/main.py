@@ -67,7 +67,7 @@ def process_account(account, proxies, session):
     chrome_options.binary_location = chrome_binary_path
     service = ChromeService(executable_path=chrome_driver_path)
 
-    # chrome_options.add_argument('--headless')
+    chrome_options.add_argument('--headless')
     chrome_options.add_argument('--no-sandbox')
     chrome_options.add_argument('--disable-dev-shm-usage')
     chrome_options.add_argument('--ignore-certificate-errors')
@@ -109,7 +109,7 @@ def process_account(account, proxies, session):
             if not check_nginx_502_error(driver):
                 logging.error("Failed to resolve 502 error after retries, exiting...")
                 return
-            logging.info(f"Account {account['iin']}: Navigated to {account['target_url']}")
+            # logging.info(f"Account {account['iin']}: Navigated to {account['target_url']}")
             click_register_button(driver, account, session)
         except AuthenticationError as e:
             change_account_status(session, account['id'], "Authentication Error")
@@ -153,7 +153,7 @@ def main(proxies):
         with iin_locks[iin]:
             process_account(account, *args)
 
-    with ThreadPoolExecutor(max_workers=1) as executor:
+    with ThreadPoolExecutor(max_workers=8) as executor:
         futures = []
 
         for account in accounts:

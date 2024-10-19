@@ -192,7 +192,8 @@ def click_register_button(driver, account, session):
     if not check_nginx_502_error(driver):
         logging.error("Failed to resolve 502 error after retries, exiting...")
         return
-    while attempts < 500:
+    # while attempts < 500: TODO: УБРАТЬ НАХУЙ
+    while attempts < 3:
         try:
             wait = WebDriverWait(driver, 50)
             button_xpath = "//button[contains(@class, 'btn') and contains(@class, 'btn-sm') and contains(@class, 'btn-primary') and contains(@class, 'text-nowrap') and contains(@class, 'ms-3')]"
