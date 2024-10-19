@@ -19,10 +19,10 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 
 from db.queries import get_account_by_id, load_accounts_from_db, change_account_status
 from project.errors import check_nginx_502_error
-from project.exceptions import PhoneNumbersError, AuthenticationError
+from project.exceptions import PhoneNumbersError, AuthenticationError, IncorrectGroupLink, LanguageChangeError
 from project.parsing import navigate_to_login_page, click_iin_bin_link, enter_iin, enter_password, \
     click_login_button, \
-    change_language_to_russian, click_register_button, enter_phone_number, click_popup_button
+    change_language_to_russian, click_register_button, enter_phone_number, click_popup_button, check_page_unavailable
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s', handlers=[
     logging.FileHandler("./log.txt", mode='a', encoding='utf-8'),
@@ -64,7 +64,7 @@ def process_account(account, proxies, session):
     chrome_options.binary_location = chrome_binary_path
     service = ChromeService(executable_path=chrome_driver_path)
 
-    chrome_options.add_argument('--headless')
+    # chrome_options.add_argument('--headless')
     chrome_options.add_argument('--no-sandbox')
     chrome_options.add_argument('--disable-dev-shm-usage')
     chrome_options.add_argument('--ignore-certificate-errors')
@@ -102,6 +102,7 @@ def process_account(account, proxies, session):
                 pass
             change_language_to_russian(driver, account)
             driver.get(account["target_url"])
+            check_page_unavailable(driver, account)
             if not check_nginx_502_error(driver):
                 logging.error("Failed to resolve 502 error after retries, exiting...")
                 return
@@ -112,6 +113,12 @@ def process_account(account, proxies, session):
             logging.error(f"{e}")
         except PhoneNumbersError as e:
             change_account_status(session, account['id'], "Phone Numbers Error")
+            logging.error(f"{e}")
+        except IncorrectGroupLink as e:
+            change_account_status(session, account['id'], "Incorrect Group Link")
+            logging.error(f"{e}")
+        except LanguageChangeError as e:
+            change_account_status(session, account['id'], "Language Change Error")
             logging.error(f"{e}")
         except Exception as e:
             error_name = type(e).__name__
@@ -134,8 +141,8 @@ def main(proxies):
     finally:
         session.close()
 
-    ignored_statuses = ["Finished", "No Available Group", "Authentication Error", "Phone Numbers Error",
-                        "Incorrect Child Name"]
+    ignored_statuses = ["Finished", "No Available Group", "Phone Numbers Error",
+                        "Incorrect Child Name", "Incorrect Group Link"]
     iin_locks = {}
 
     def process_account_with_lock(account, *args):
@@ -147,7 +154,7 @@ def main(proxies):
         with iin_locks[iin]:
             process_account(account, *args)
 
-    with ThreadPoolExecutor(max_workers=5) as executor:
+    with ThreadPoolExecutor(max_workers=1) as executor:
         futures = []
 
         for account in accounts:

@@ -1,13 +1,14 @@
 import time
 import logging
 
+from selenium.common import TimeoutException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from db.queries import change_account_status
 from project.annotations import with_modal_check
 from project.errors import check_nginx_502_error
-from project.exceptions import AuthenticationError, PhoneNumbersError
+from project.exceptions import AuthenticationError, PhoneNumbersError, IncorrectGroupLink, LanguageChangeError
 
 
 @with_modal_check
@@ -53,8 +54,8 @@ def enter_phone_number(driver, account):
     try:
         wait_var.until(EC.presence_of_element_located((By.XPATH, "//input[@class='otp-input one']"))).send_keys(
             account['phone_number'])
-    except:
-        raise AuthenticationError(f"Ошибка аутентификации для аккаунта {account['iin']}: Неверный номер телефона.")
+    except Exception as e:
+        raise AuthenticationError(f"Account {account['iin']}: Error entering phone number: {e}!")
 
 
 @with_modal_check
@@ -71,7 +72,7 @@ def click_popup_button(driver, account):
         error_icon = driver.find_element(By.CLASS_NAME, "swal2-icon-error")
         if error_icon.is_displayed():
             raise PhoneNumbersError(
-                f"Ошибка аутентификации для аккаунта {account['iin']}: Неверные последние 4 цифры номера телефона!")
+                f"Account {account['iin']}: Invalid last 4 digits of phone number!")
         else:
             raise Exception("Unexpected login_and_continue Error")
 
@@ -104,7 +105,18 @@ def change_language_to_russian(driver, account):
 
         logging.info(f"Account {account['iin']}: Language changed to Russian")
     except Exception as e:
-        logging.error(f"Account {account['iin']}: Error changing language to Russian - {e}")
+        raise LanguageChangeError(f"Account {account['iin']}: Error changing language to Russian - {e}")
+
+
+def check_page_unavailable(driver, account):
+    wait_var = WebDriverWait(driver, 3)
+    try:
+        wait_var.until(EC.presence_of_element_located(
+            (By.XPATH, "//h1[contains(text(), 'Страница недоступна в данный момент')]")
+        ))
+        raise IncorrectGroupLink(f"Account {account['iin']}: Incorrect group link for child. ")
+    except TimeoutException:
+        pass
 
 
 def click_each_tab_and_check_group(driver):
@@ -195,7 +207,7 @@ def click_register_button(driver, account, session):
             if error_popup:
                 raise Exception()
             else:
-                logging.info(f"Modal content on the site")
+                logging.info(f"Account {account['iin']}: Form is open.")
                 fill_modal_form(driver, account, session)
                 return
 
@@ -217,7 +229,7 @@ def fill_modal_form(driver, account, session):
 
     if not selected_group:
         change_account_status(session, account['id'], "No Available Group")
-        logging.error(f"Failed to enroll account {account['iin']} in group: No available spots.")
+        logging.error(f"Account {account['iin']}: No available spots in section.")
         return
 
     if check_nginx_502_error(driver):
@@ -233,7 +245,8 @@ def fill_modal_form(driver, account, session):
                 element = wait.until(EC.presence_of_element_located((By.CLASS_NAME, 'vs__no-options')))
                 if element:
                     change_account_status(session, account['id'], "Finished")
-                    logging.info(f"No options in modal form for account {account['iin']}, acc registered")
+                    logging.info(
+                        f"Account {account['iin']}: No options in modal form, already registered or no children.")
                     return
             except:
                 None
@@ -251,10 +264,8 @@ def fill_modal_form(driver, account, session):
 
             if child_name is None:
                 change_account_status(session, account['id'], "Incorrect Child Name")
-                logging.error(f"Failed to enroll account {account['iin']} in group: No child name matches.")
+                logging.error(f"Account {account['iin']}: Failed to enroll in group. No name matches for {child_name}.")
                 return
-
-            print(child_name)
 
             first_option_xpath = f"//ul[@id='vs2__listbox' and contains(@class, 'vs__dropdown-menu')]/li[@role='option'][{child_name}]"
             first_option = wait.until(EC.element_to_be_clickable((By.XPATH, first_option_xpath)))
@@ -265,11 +276,12 @@ def fill_modal_form(driver, account, session):
             second_element.click()
 
             try:
-                wait = WebDriverWait(driver, 0.3)
+                wait = WebDriverWait(driver, 1)
                 element = wait.until(EC.presence_of_element_located((By.CLASS_NAME, 'vs__no-options')))
                 if element:
                     change_account_status(session, account['id'], "Finished")
-                    logging.info(f"No options in modal form for account {account['iin']}, acc registered")
+                    logging.info(
+                        f"Account {account['iin']}: No options in modal form, already registered or no children.")
                     return
             except:
                 pass
@@ -295,12 +307,11 @@ def fill_modal_form(driver, account, session):
 
                 if "Успешно!" in success_message.text:
                     change_account_status(session, account['id'], "Finished")
-                    logging.info(f"Successfully enrolled account {account['iin']} in group.")
+                    logging.info(f"Account {account['iin']}: Successfully enrolled in group.")
 
             except Exception as e:
-                change_account_status(session, account['id'], "No av spots in current group")
-                logging.info(f"No av spots in current group account {account['iin']}, {account['chlid_name']}.")
-
+                change_account_status(session, account['id'], "No Spots In Current Group")
+                logging.info(f"Account {account['iin']}: No spots in current group.")
 
         except Exception as e:
-            logging.error(f"Error filling form in account {account['iin']}: {e}")
+            logging.error(f"Account {account['iin']}: Error while filling form: {e}")
