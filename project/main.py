@@ -32,6 +32,10 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 # Отключаем все логи уровня INFO и ниже
 logging.getLogger('seleniumwire').setLevel(logging.ERROR)
 
+engine = create_engine('sqlite:///db/accounts.db')
+Session = scoped_session(sessionmaker(bind=engine))
+
+
 
 def login_and_continue(driver, account):
     login_url = "https://damubala.kz/sign-in"
@@ -45,7 +49,6 @@ def login_and_continue(driver, account):
     logging.info(f"Account {account['iin']}: Logged into main menu")
 
 
-# TODO: Разбить на функции, ошибки ловятся
 def process_account(account, proxies, session):
     # -----------------------------------------Config-------------------------------------------------------------------
     # Проверяем, какая операционная система используется
@@ -125,14 +128,11 @@ def process_account(account, proxies, session):
             logging.error(f"Error {error_name} processing account {account['iin']}: {e}")
             change_account_status(session, account['id'], "Error")
         finally:
-            session.close()
+            Session.remove()
 
 
 def main(proxies):
-    engine = create_engine('sqlite:///db/accounts.db')
-    Session = scoped_session(sessionmaker(bind=engine))
     session = Session()
-
     try:
         accounts = load_accounts_from_db(session)
     except Exception as e:

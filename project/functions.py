@@ -1,16 +1,14 @@
-# Функция для парсинга данных из TXT
 def parse_accounts_from_txt(file_path):
     accounts = []
     with open(file_path, 'r', encoding='utf-8') as file:
         for line in file:
             line = line.strip()
             if line:
-                # Разделяем строку по символу `;`
                 iin, password, phone_number, target_url, child_name, status = line.split(';')
                 account = {
                     "iin": iin,
                     "password": password,
-                    "phone_number": phone_number,  # Добавляем phone_number
+                    "phone_number": phone_number,
                     "target_url": target_url,
                     "child_name": child_name,
                     "status": status
@@ -19,7 +17,6 @@ def parse_accounts_from_txt(file_path):
     return accounts
 
 
-# Функция для загрузки прокси из TXT файла
 def load_proxies(file_path):
     with open(file_path, 'r') as file:
         proxies = [line.strip() for line in file]
