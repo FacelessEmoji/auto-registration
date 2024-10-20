@@ -55,7 +55,7 @@ def enter_phone_number(driver, account):
         wait_var.until(EC.presence_of_element_located((By.XPATH, "//input[@class='otp-input one']"))).send_keys(
             account['phone_number'])
     except Exception as e:
-        raise AuthenticationError(f"Account {account['iin']}: Error entering phone number: {e}!")
+        raise AuthenticationError(f"Account {account['id']}: Error entering phone number: {e}!")
 
 
 @with_modal_check
@@ -72,7 +72,7 @@ def click_popup_button(driver, account):
         error_icon = driver.find_element(By.CLASS_NAME, "swal2-icon-error")
         if error_icon.is_displayed():
             raise PhoneNumbersError(
-                f"Account {account['iin']}: Invalid last 4 digits of phone number!")
+                f"Account {account['id']}: Invalid last 4 digits of phone number!")
         else:
             raise Exception("Unexpected login_and_continue Error")
 
@@ -103,9 +103,9 @@ def change_language_to_russian(driver, account):
         russian_language_option = wait.until(EC.element_to_be_clickable((By.XPATH, "//a[contains(text(), 'Русский')]")))
         russian_language_option.click()
 
-        logging.info(f"Account {account['iin']}: Language changed to Russian")
+        logging.info(f"Account {account['id']}: Language changed to Russian")
     except Exception as e:
-        raise LanguageChangeError(f"Account {account['iin']}: Error changing language to Russian - {e}")
+        raise LanguageChangeError(f"Account {account['id']}: Error changing language to Russian - {e}")
 
 
 def check_page_unavailable(driver, account):
@@ -113,14 +113,14 @@ def check_page_unavailable(driver, account):
 
     current_url = driver.current_url
     if "https://damubala.kz/parent/children" in current_url:
-        raise IncorrectGroupLink(f"Account {account['iin']}: Incorrect group link for child. Supplier in link.")
+        raise IncorrectGroupLink(f"Account {account['id']}: Incorrect group link for child. Supplier in link.")
 
     wait_var = WebDriverWait(driver, 3)
     try:
         wait_var.until(EC.presence_of_element_located(
             (By.XPATH, "//h1[contains(text(), 'Страница недоступна в данный момент')]")
         ))
-        raise IncorrectGroupLink(f"Account {account['iin']}: Incorrect group link for child. Section is unavailable.")
+        raise IncorrectGroupLink(f"Account {account['id']}: Incorrect group link for child. Section is unavailable.")
     except TimeoutException:
         pass
 
@@ -214,7 +214,7 @@ def click_register_button(driver, account, session):
             if error_popup:
                 raise Exception()
             else:
-                logging.info(f"Account {account['iin']}: Form is open.")
+                logging.info(f"Account {account['id']}: Form is open.")
                 fill_modal_form(driver, account, session)
                 return
 
@@ -236,7 +236,7 @@ def fill_modal_form(driver, account, session):
 
     if not selected_group:
         change_account_status(session, account['id'], "No Available Group")
-        logging.error(f"Account {account['iin']}: No available spots in section.")
+        logging.error(f"Account {account['id']}: No available spots in section.")
         return
 
     if check_nginx_502_error(driver):
@@ -253,7 +253,7 @@ def fill_modal_form(driver, account, session):
                 if element:
                     change_account_status(session, account['id'], "Finished")
                     logging.info(
-                        f"Account {account['iin']}: No options in modal form, already registered or no children.")
+                        f"Account {account['id']}: No options in modal form, already registered or no children.")
                     return
             except:
                 None
@@ -271,7 +271,7 @@ def fill_modal_form(driver, account, session):
 
             if child_name is None:
                 change_account_status(session, account['id'], "Incorrect Child Name")
-                logging.error(f"Account {account['iin']}: Failed to enroll in group. No name matches for {child_name}.")
+                logging.error(f"Account {account['id']}: Failed to enroll in group. No name matches for {child_name}.")
                 return
 
             first_option_xpath = f"//ul[@id='vs2__listbox' and contains(@class, 'vs__dropdown-menu')]/li[@role='option'][{child_name}]"
@@ -288,7 +288,7 @@ def fill_modal_form(driver, account, session):
                 if element:
                     change_account_status(session, account['id'], "Finished")
                     logging.info(
-                        f"Account {account['iin']}: No options in modal form, already registered or no children.")
+                        f"Account {account['id']}: No options in modal form, already registered or no children.")
                     return
             except:
                 pass
@@ -314,11 +314,11 @@ def fill_modal_form(driver, account, session):
 
                 if "Успешно!" in success_message.text:
                     change_account_status(session, account['id'], "Finished")
-                    logging.info(f"Account {account['iin']}: Successfully enrolled in group.")
+                    logging.info(f"Account {account['id']}: Successfully enrolled in group.")
 
             except Exception as e:
                 change_account_status(session, account['id'], "No Spots In Current Group")
-                logging.info(f"Account {account['iin']}: No spots in current group.")
+                logging.info(f"Account {account['id']}: No spots in current group.")
 
         except Exception as e:
-            logging.error(f"Account {account['iin']}: Error while filling form: {e}")
+            logging.error(f"Account {account['id']}: Error while filling form: {e}")
