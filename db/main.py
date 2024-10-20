@@ -2,8 +2,7 @@ import os
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-from db.models import Base, Account
-
+from models import Base, Account
 
 engine = create_engine('sqlite:///accounts.db')
 
@@ -71,4 +70,4 @@ def load_accounts_from_txt_to_db(file_path):
 if __name__ == "__main__":
     create_database()
     load_accounts_from_txt_to_db("accounts.txt")
-    # test_change_account_status()
+
