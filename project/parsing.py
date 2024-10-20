@@ -192,7 +192,8 @@ def click_register_button(driver, account, session):
     if not check_nginx_502_error(driver):
         logging.error("Failed to resolve 502 error after retries, exiting...")
         return
-    while attempts < 500:
+    # while attempts < 500: TODO: УБРАТЬ НАХУЙ
+    while attempts < 3:
         try:
             wait = WebDriverWait(driver, 50)
             button_xpath = "//button[contains(@class, 'btn') and contains(@class, 'btn-sm') and contains(@class, 'btn-primary') and contains(@class, 'text-nowrap') and contains(@class, 'ms-3')]"
@@ -273,6 +274,8 @@ def fill_modal_form(driver, account, session):
                 change_account_status(session, account['id'], "Incorrect Child Name")
                 logging.error(f"Account {account['id']}: Failed to enroll in group. No name matches for {child_name}.")
                 return
+
+            print(child_name)
 
             first_option_xpath = f"//ul[@id='vs2__listbox' and contains(@class, 'vs__dropdown-menu')]/li[@role='option'][{child_name}]"
             first_option = wait.until(EC.element_to_be_clickable((By.XPATH, first_option_xpath)))
