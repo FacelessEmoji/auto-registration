@@ -36,7 +36,6 @@ engine = create_engine('sqlite:///db/accounts.db')
 Session = scoped_session(sessionmaker(bind=engine))
 
 
-
 def login_and_continue(driver, account):
     login_url = "https://damubala.kz/sign-in"
     navigate_to_login_page(driver, login_url)
@@ -46,7 +45,7 @@ def login_and_continue(driver, account):
     click_login_button(driver)
     enter_phone_number(driver, account)
     click_popup_button(driver, account)
-    logging.info(f"Account {account['iin']}: Logged into main menu")
+    logging.info(f"Account {account['id']}: Logged into main menu")
 
 
 def process_account(account, proxies, session):
@@ -129,7 +128,6 @@ def process_account(account, proxies, session):
             change_account_status(session, account['id'], "Error")
 
 
-
 def main(proxies):
     session = Session()
     try:
@@ -153,7 +151,7 @@ def main(proxies):
         with iin_locks[iin]:
             process_account(account, *args)
 
-    with ThreadPoolExecutor(max_workers=8) as executor:
+    with ThreadPoolExecutor(max_workers=1) as executor:
         futures = []
 
         for account in accounts:
